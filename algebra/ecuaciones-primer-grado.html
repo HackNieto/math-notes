@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ecuaciones de primer grado paso a paso</title>
+<style>
+:root{
+  --paper:#fdfdfb; --grid:#dbe7f3; --ink:#1f3a68; --soft:#5a6b85;
+  --pen:#c8323a; --ok:#1f8a4c; --hl:#fff3a8; --card:#ffffffd9; --line:#b9cbe0;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#141a24; --grid:#1f2a3a; --ink:#dbe6f7; --soft:#93a3bb;
+    --pen:#ff7a80; --ok:#5fd394; --hl:#4a4320; --card:#182131e6; --line:#2f3f57;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#141a24; --grid:#1f2a3a; --ink:#dbe6f7; --soft:#93a3bb;
+  --pen:#ff7a80; --ok:#5fd394; --hl:#4a4320; --card:#182131e6; --line:#2f3f57;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; color:var(--ink); background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px, transparent 1px),linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:24px 24px;
+  font-family:"Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size:1.05rem; line-height:1.55; font-variant-numeric:tabular-nums;
+}
+main{max-width:720px; margin:0 auto; padding:24px 18px 64px}
+.volver{display:inline-block; color:var(--ink); font-weight:600; text-decoration:none; padding:6px 0; border-bottom:2px solid var(--line)}
+.volver:hover{border-bottom-color:var(--pen)}
+.volver:focus-visible{outline:3px solid var(--pen); outline-offset:3px}
+h1{font-family:Georgia,"Times New Roman",serif; font-size:clamp(1.9rem,6vw,2.6rem); line-height:1.1; margin:14px 0 6px; font-weight:700}
+.sub{color:var(--soft); margin:0 0 22px}
+.panel{background:var(--card); border:2px solid var(--ink); border-radius:14px; padding:14px 16px}
+.panel label{display:block; font-weight:600; margin-bottom:6px}
+.entrada{display:flex; gap:10px; flex-wrap:wrap}
+.entrada input{
+  flex:1 1 220px; min-width:0; font-family:Georgia,serif; font-size:1.6rem; color:var(--ink);
+  background:var(--paper); border:2px solid var(--ink); border-radius:10px; padding:6px 12px;
+}
+.entrada input:focus-visible{outline:3px solid var(--pen); outline-offset:2px}
+button{font:inherit; font-weight:600; cursor:pointer; border-radius:10px; border:2px solid var(--ink); background:var(--ink); color:var(--paper); padding:10px 18px}
+button:focus-visible{outline:3px solid var(--pen); outline-offset:2px}
+.ayuda{color:var(--soft); font-size:.92rem; margin:8px 0 0}
+.ejemplos{margin:12px 0 0; display:flex; gap:8px; flex-wrap:wrap; align-items:center; color:var(--soft); font-size:.95rem}
+.ejemplos button{background:transparent; color:var(--ink); padding:4px 12px; font-weight:500; border-width:1.5px; font-family:Georgia,serif}
+.error{color:var(--pen); font-weight:600; margin-top:16px}
+ol.pasos{list-style:none; padding:0; margin:28px 0 0; counter-reset:paso}
+ol.pasos > li{counter-increment:paso; position:relative; background:var(--card); border-left:4px solid var(--ink); border-radius:0 12px 12px 0; padding:14px 16px 14px 56px; margin-bottom:16px}
+ol.pasos > li::before{content:counter(paso); position:absolute; left:14px; top:12px; width:30px; height:30px; border-radius:50%; border:2px solid var(--pen); color:var(--pen); display:grid; place-items:center; font-weight:700; font-family:Georgia,serif}
+ol.pasos h2{font-size:1.1rem; margin:2px 0 6px}
+ol.pasos p{margin:6px 0}
+.pista{color:var(--soft); font-size:.95rem}
+.ec{font-family:Georgia,serif; font-size:1.35rem; background:var(--hl); display:inline-block; padding:4px 12px; border-radius:6px; margin:6px 0; max-width:100%; overflow-x:auto; white-space:nowrap}
+.ec .igual{margin:0 .35em}
+.ec i{font-style:italic}
+.rojo{color:var(--pen); font-weight:700}
+.frac{display:inline-flex; flex-direction:column; vertical-align:middle; text-align:center; font-size:.82em; line-height:1.1; margin:0 .12em}
+.frac > span:first-child{border-bottom:1.5px solid currentColor; padding:0 .2em}
+.flecha{color:var(--soft); margin:2px 0 0 4px}
+.resultado{margin-top:8px; border:2px solid var(--ok); border-radius:14px; padding:16px; background:var(--card)}
+.resultado .grande{font-family:Georgia,serif; font-size:2.2rem; font-weight:700; color:var(--ok)}
+.resultado.otro{border-color:var(--pen)}
+.resultado.otro .grande{color:var(--pen); font-size:1.6rem}
+@media (prefers-reduced-motion:no-preference){
+  ol.pasos > li{animation:aparece .35s ease both}
+  @keyframes aparece{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+}
+</style>
+</head>
+<body>
+<main>
+  <a class="volver" href="../index.html">← Volver al menú</a>
+  <h1>Ecuaciones de primer grado paso a paso</h1>
+  <p class="sub">Escribe una ecuación y mira cómo se despeja la incógnita, un paso a la vez.</p>
+
+  <div class="panel">
+    <label for="ec">Tu ecuación</label>
+    <div class="entrada">
+      <input id="ec" value="5x - 7 = 2x + 8" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button id="resolver">Resolver</button>
+    </div>
+    <p class="ayuda">Puedes usar paréntesis, fracciones como x/2 y decimales como 0,5. La incógnita puede ser cualquier letra.</p>
+  </div>
+  <div class="ejemplos">Prueba con:
+    <button>3x + 5 = 20</button><button>5x - 7 = 2x + 8</button><button>2(x - 3) = 4x + 1</button><button>x/2 + 3 = 7</button><button>0,5x + 2 = 4</button><button>3(x + 2) - x = 2(x + 3)</button><button>4x + 1 = 4x + 5</button>
+  </div>
+
+  <div id="salida" aria-live="polite"></div>
+</main>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+
+  // ---------- fracciones exactas ----------
+  const gcd = (a, b) => { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) [a, b] = [b, a % b]; return a; };
+  const lcm = (a, b) => a / gcd(a, b) * b;
+  class Q {
+    constructor(n, d = 1n){ if (d < 0n){ n = -n; d = -d; } const g = gcd(n, d) || 1n; this.n = n / g; this.d = d / g; }
+    add(o){ return new Q(this.n*o.d + o.n*this.d, this.d*o.d); }
+    sub(o){ return new Q(this.n*o.d - o.n*this.d, this.d*o.d); }
+    mul(o){ return new Q(this.n*o.n, this.d*o.d); }
+    div(o){ return new Q(this.n*o.d, this.d*o.n); }
+    neg(){ return new Q(-this.n, this.d); }
+    abs(){ return new Q(this.n < 0n ? -this.n : this.n, this.d); }
+    zero(){ return this.n === 0n; }
+    one(){ return this.n === 1n && this.d === 1n; }
+    eq(o){ return this.n === o.n && this.d === o.d; }
+    num(){ return Number(this.n) / Number(this.d); }
+  }
+  const Q0 = new Q(0n), Q1 = new Q(1n);
+  const numQ = s => { const [i, f = ''] = s.split('.'); return new Q(BigInt((i || '0') + f), 10n ** BigInt(f.length)); };
+
+  class Fallo extends Error {}
+  const fallo = m => new Fallo(m);
+
+  // ---------- lectura de la ecuación ----------
+  function normalizar(s){
+    return s.replace(/[−–—]/g, '-').replace(/[×·]/g, '*').replace(/÷/g, '/').replace(/\s+/g, '');
+  }
+  function tokens(s){
+    const t = []; let i = 0;
+    while (i < s.length){
+      const c = s[i];
+      if (/[0-9.,]/.test(c)){
+        let j = i; while (j < s.length && /[0-9.,]/.test(s[j])) j++;
+        const raw = s.slice(i, j), v = raw.replace(',', '.');
+        if (/[.,].*[.,]/.test(raw) || v === '.') throw fallo(`Revisa el número “${raw}”: usa una sola coma o punto para los decimales.`);
+        t.push({t:'num', v:numQ(v), dec: v.includes('.')}); i = j; continue;
+      }
+      if (/[a-zA-ZñÑ]/.test(c)){ t.push({t:'var', v:c.toLowerCase()}); i++; continue; }
+      if ('+-*/()='.includes(c)){ t.push({t:c}); i++; continue; }
+      if ('^²³'.includes(c)) throw fallo('Esta herramienta resuelve ecuaciones de primer grado: la incógnita no puede estar elevada a una potencia (nada de x², x³…).');
+      throw fallo(`No reconozco el símbolo “${c}”.`);
+    }
+    return t;
+  }
+  const L = (a, b) => ({a, b});
+  function mulL(u, v){
+    if (!u.a.zero() && !v.a.zero()) throw fallo('Aparece la incógnita multiplicada por sí misma (eso sería x²). Esta herramienta solo resuelve ecuaciones de primer grado.');
+    return L(u.a.mul(v.b).add(v.a.mul(u.b)), u.b.mul(v.b));
+  }
+  function divL(u, v){
+    if (!v.a.zero()) throw fallo('La incógnita quedó en el denominador (dividiendo). Esta herramienta solo resuelve ecuaciones donde la incógnita está arriba.');
+    if (v.b.zero()) throw fallo('Hay una división entre cero, y eso no se puede hacer.');
+    return L(u.a.div(v.b), u.b.div(v.b));
+  }
+  function leerLado(t){
+    let p = 0;
+    const ver = () => t[p], tomar = () => t[p++];
+    function expr(){
+      let v = termino();
+      while (ver() && (ver().t === '+' || ver().t === '-')){
+        const op = tomar().t, r = termino();
+        v = op === '+' ? L(v.a.add(r.a), v.b.add(r.b)) : L(v.a.sub(r.a), v.b.sub(r.b));
+      }
+      return v;
+    }
+    function termino(){
+      let v = unario();
+      for (;;){
+        const k = ver(); if (!k) break;
+        if (k.t === '*'){ tomar(); v = mulL(v, unario()); }
+        else if (k.t === '/'){ tomar(); v = divL(v, unario()); }
+        else if (k.t === 'num' || k.t === 'var' || k.t === '('){ v = mulL(v, unario()); }
+        else break;
+      }
+      return v;
+    }
+    function unario(){
+      const k = ver();
+      if (k && k.t === '-'){ tomar(); const u = unario(); return L(u.a.neg(), u.b.neg()); }
+      if (k && k.t === '+'){ tomar(); return unario(); }
+      return primario();
+    }
+    function primario(){
+      const k = tomar();
+      if (!k) throw fallo('A la ecuación le falta algo: revisa que no termine en un signo.');
+      if (k.t === 'num') return L(Q0, k.v);
+      if (k.t === 'var') return L(Q1, Q0);
+      if (k.t === '('){
+        const v = expr();
+        if (!ver() || ver().t !== ')') throw fallo('Falta cerrar un paréntesis.');
+        tomar(); return v;
+      }
+      throw fallo(k.t === ')' ? 'Hay un paréntesis que se cierra sin haberse abierto.' : `Hay un signo “${k.t}” fuera de lugar.`);
+    }
+    if (!t.length) throw fallo('Uno de los lados de la ecuación está vacío.');
+    const v = expr();
+    if (p < t.length) throw fallo(t[p].t === ')' ? 'Sobra un paréntesis de cierre.' : 'Revisa cómo está escrita la ecuación.');
+    return v;
+  }
+
+  // ---------- cómo se ven las cosas ----------
+  let X = 'x';
+  const xHTML = () => `<i>${X}</i>`;
+  const qHTML = q => q.d === 1n ? q.n.toString() : `<span class="frac"><span>${q.n}</span><span>${q.d}</span></span>`;
+  const qFirmado = q => (q.n < 0n ? '−' : '') + qHTML(q.abs());
+  const qTexto = q => (q.n < 0n ? '−' : '') + (q.d === 1n ? (q.n < 0n ? -q.n : q.n) : `${q.n < 0n ? -q.n : q.n}/${q.d}`);
+  function terminos(lista){
+    const it = lista.filter(t => !t.q.zero());
+    if (!it.length) return '0';
+    return it.map((t, i) => {
+      const neg = t.q.n < 0n, ab = t.q.abs();
+      const cuerpo = t.x ? (ab.one() ? '' : qHTML(ab)) + xHTML() : qHTML(ab);
+      const s = (i === 0 ? (neg ? '−' : '') : (neg ? ' − ' : ' + ')) + cuerpo;
+      return t.hl ? `<span class="rojo">${s}</span>` : s;
+    }).join('');
+  }
+  const lado = (u, extra = []) => terminos([{q:u.a, x:true}, {q:u.b, x:false}, ...extra]);
+  const ec = (izq, der) => `<div class="ec">${izq}<span class="igual">=</span>${der}</div>`;
+  const bonito = s => s.replace(/\*/g, ' × ').replace(/-/g, ' − ').replace(/\+/g, ' + ').replace(/=/g, ' = ').replace(/\s+/g, ' ').replace(/\( /g, '(').replace(/^ − /, '−').replace(/= − /, '= −').replace(/\(\s*−\s*/g, '(−').trim();
+  const paso = (titulo, cuerpo) => `<li><h2>${titulo}</h2>${cuerpo}</li>`;
+  const signoFrase = q => q.n < 0n ? 'sumamos' : 'restamos';
+
+  function ejemploParentesis(s){
+    const m = /(\d+(?:[.,]\d+)?)?\(([^()]+)\)/.exec(s);
+    if (!m) return '';
+    const despues = s[m.index + m[0].length];
+    if (despues === '/') return '';
+    const antes = s[m.index - 1];
+    if (antes && /[a-zA-Z)]/.test(antes)) return '';
+    let k = m[1] ? numQ(m[1].replace(',', '.')) : Q1;
+    if (antes === '-') k = k.neg();
+    let dentro; try { dentro = leerLado(tokens(m[2])); } catch(e){ return ''; }
+    const r = L(dentro.a.mul(k), dentro.b.mul(k));
+    const izq = `${antes === '-' ? '−' : ''}${m[1] || ''}(${bonito(m[2])})`;
+    let nota = 'Para quitar un paréntesis, multiplicamos el número de afuera por <strong>cada</strong> término de adentro:';
+    if (!m[1] && antes === '-') nota = 'Un signo menos antes de un paréntesis cambia el signo de <strong>todo</strong> lo que está adentro:';
+    else if (!m[1]) nota = 'Este paréntesis no tiene número enfrente, así que solo lo quitamos:';
+    return `<p>${nota}</p><div class="ec">${izq}<span class="igual">=</span>${lado(r)}</div>
+      ${m[1] && antes === '-' ? '<p class="pista">Fíjate en los signos: menos por más da menos, y menos por menos da más.</p>' : ''}`;
+  }
+
+  // ---------- resolver ----------
+  function resolver(){
+    const out = $('#salida');
+    const crudo = $('#ec').value.trim();
+    try {
+      const s = normalizar(crudo);
+      const t = tokens(s);
+      const letras = [...new Set(t.filter(k => k.t === 'var').map(k => k.v))];
+      if (letras.length === 0) throw fallo('La ecuación necesita una incógnita, por ejemplo x.');
+      if (letras.length > 1) throw fallo(`Usa una sola letra como incógnita. Encontré varias: ${letras.join(', ')}.`);
+      X = letras[0];
+      const iguales = t.filter(k => k.t === '=').length;
+      if (iguales !== 1) throw fallo(iguales === 0 ? 'Falta el signo = que separa los dos lados de la ecuación.' : 'La ecuación debe tener un solo signo =.');
+      const pos = t.findIndex(k => k.t === '=');
+      const izqT = t.slice(0, pos), derT = t.slice(pos + 1);
+      const izq0 = leerLado(izqT), der0 = leerLado(derT);
+      const [izqTxt, derTxt] = s.split('=');
+      out.innerHTML = pasos(s, izqTxt, derTxt, izq0, der0, t);
+    } catch(e){
+      if (e instanceof Fallo){ out.innerHTML = `<p class="error">${e.message}</p>`; return; }
+      throw e;
+    }
+  }
+
+  function pasos(s, izqTxt, derTxt, izq0, der0, t){
+    let h = '<ol class="pasos">';
+    let I = izq0, D = der0;
+
+    h += paso('Lee la ecuación',
+      `${ec(bonito(izqTxt), bonito(derTxt))}
+       <p>Una ecuación es como una <strong>balanza en equilibrio</strong>: lo que está a la izquierda del = vale lo mismo que lo que está a la derecha.</p>
+       <p>Nuestra meta es dejar la ${xHTML()} <strong>sola</strong> de un lado. La regla de oro: todo lo que hagas de un lado, lo haces también del otro, y así la balanza sigue equilibrada.</p>`);
+
+    // 1) simplificar cada lado
+    const plano = u => { const tx = lado(u).replace(/<[^>]+>/g, ''); return tx.replace(/\s+/g, ''); };
+    const original = s.replace(/-/g, '−');
+    const simple = plano(I) + '=' + plano(D);
+    const hayPar = s.includes('(');
+    const hayDiv = t.some(k => k.t === '/');
+    const hayDec = t.some(k => k.t === 'num' && k.dec);
+    if (simple !== original){
+      let expl = '';
+      if (hayPar) expl += ejemploParentesis(s);
+      if (hayDec) expl += '<p>Los decimales los escribimos como fracciones para trabajar con números exactos. Por ejemplo, 0,5 = <span class="frac"><span>1</span><span>2</span></span>.</p>';
+      if (hayDiv) expl += `<p>Dividir entre un número es lo mismo que multiplicar por una fracción. Por ejemplo, ${xHTML()}/2 es lo mismo que <span class="frac"><span>1</span><span>2</span></span>${xHTML()}, la mitad de ${xHTML()}.</p>`;
+      expl += `<p>Luego juntamos los términos parecidos de cada lado: los que tienen ${xHTML()} con los que tienen ${xHTML()}, y los números solos con los números solos. Escribimos primero los de ${xHTML()}.</p>`;
+      h += paso('Ordena cada lado', `${expl}<p>Queda:</p>${ec(lado(I), lado(D))}`);
+    }
+
+    // 2) quitar fracciones
+    let m = 1n;
+    [I.a, I.b, D.a, D.b].forEach(q => { m = lcm(m, q.d); });
+    if (m > 1n){
+      const M = new Q(m);
+      const I2 = L(I.a.mul(M), I.b.mul(M)), D2 = L(D.a.mul(M), D.b.mul(M));
+      h += paso('Quita las fracciones',
+        `<p>Las fracciones complican las cuentas. Para quitarlas, multiplicamos <strong>los dos lados</strong> por ${m}, que es un número que todos los denominadores (los de abajo) dividen exacto:</p>
+         ${ec(`<span class="rojo">${m} ×</span> (${lado(I)})`, `<span class="rojo">${m} ×</span> (${lado(D)})`)}
+         <p>Multiplicamos ${m} por cada término:</p>${ec(lado(I2), lado(D2))}
+         <p class="pista">Si hay varios denominadores, se usa su mínimo común múltiplo: el número más pequeño que todos dividen exacto.</p>`);
+      I = I2; D = D2;
+    }
+
+    // 3) si la incógnita solo está a la derecha, voltear
+    if (I.a.zero() && !D.a.zero()){
+      h += paso('Voltea la ecuación',
+        `<p>La ${xHTML()} está solo del lado derecho. Como los dos lados valen lo mismo, podemos intercambiarlos para tenerla a la izquierda:</p>${ec(lado(D), lado(I))}`);
+      [I, D] = [D, I];
+    }
+
+    // 4) pasar la incógnita a la izquierda
+    if (!D.a.zero()){
+      const c = D.a, menos = c.neg();
+      const I2 = L(I.a.sub(c), I.b), D2 = L(Q0, D.b);
+      const termC = `${c.abs().one() ? '' : qHTML(c.abs())}${xHTML()}`;
+      h += paso(`Junta las ${X} del lado izquierdo`,
+        `<p>Del lado derecho hay ${c.n < 0n ? '−' : ''}${termC}. Para quitarlo de ahí, ${signoFrase(c)} ${termC} en <strong>los dos lados</strong>:</p>
+         ${ec(lado(I, [{q:menos, x:true, hl:true}]), lado(D, [{q:menos, x:true, hl:true}]))}
+         <p>Del lado derecho se cancela, y del izquierdo juntamos: ${qFirmado(I.a)}${xHTML()} ${c.n < 0n ? '+' : '−'} ${qHTML(c.abs())}${xHTML()} = ${qFirmado(I2.a)}${xHTML()}.</p>
+         ${ec(lado(I2), lado(D2))}
+         <p class="pista">Atajo: a esto se le llama “lo que está ${c.n < 0n ? 'restando pasa sumando' : 'sumando pasa restando'}”. Funciona porque hicimos lo mismo en los dos lados.</p>`);
+      I = I2; D = D2;
+    }
+
+    // casos especiales: la incógnita desapareció
+    if (I.a.zero()){
+      const igual = I.b.eq(D.b);
+      h += paso(`¡La ${X} desapareció!`,
+        igual
+          ? `<p>Nos quedó ${qFirmado(I.b)} = ${qFirmado(D.b)}, que siempre es verdad, sin importar cuánto valga ${xHTML()}.</p>
+             <p>Pruébalo: con ${xHTML()} = 1, el lado izquierdo da ${qFirmado(izq0.a.add(izq0.b))} y el derecho da ${qFirmado(der0.a.add(der0.b))}. Con ${xHTML()} = 10: ${qFirmado(izq0.a.mul(new Q(10n)).add(izq0.b))} y ${qFirmado(der0.a.mul(new Q(10n)).add(der0.b))}.</p>`
+          : `<p>Nos quedó ${qFirmado(I.b)} = ${qFirmado(D.b)}, que es <strong>falso</strong>. No importa qué número pongas en lugar de ${xHTML()}: los dos lados nunca van a ser iguales.</p>`);
+      h += '</ol>';
+      return h + `<div class="resultado otro"><div class="grande">${igual ? 'Tiene infinitas soluciones' : 'No tiene solución'}</div>
+        <div class="pista">${igual ? `Cualquier número que pongas en lugar de ${xHTML()} cumple la ecuación. A esto se le llama identidad.` : 'Los dos lados nunca pueden valer lo mismo.'}</div></div>`;
+    }
+
+    // 5) pasar los números a la derecha
+    if (!I.b.zero()){
+      const b = I.b, menos = b.neg();
+      const I2 = L(I.a, Q0), D2 = L(Q0, D.b.sub(b));
+      h += paso('Pasa los números al lado derecho',
+        `<p>Junto a la ${xHTML()} hay un ${qFirmado(b)}. Para quitarlo, ${signoFrase(b)} ${qHTML(b.abs())} en <strong>los dos lados</strong>:</p>
+         ${ec(lado(I, [{q:menos, x:false, hl:true}]), lado(D, [{q:menos, x:false, hl:true}]))}
+         <p>A la izquierda se cancela. A la derecha: ${qFirmado(D.b)} ${b.n < 0n ? '+' : '−'} ${qHTML(b.abs())} = ${qFirmado(D2.b)}.</p>
+         ${ec(lado(I2), lado(D2))}
+         <p class="pista">Atajo: “lo que está ${b.n < 0n ? 'restando pasa sumando' : 'sumando pasa restando'}”.</p>`);
+      I = I2; D = D2;
+    }
+
+    // 6) dividir entre el coeficiente
+    const a = I.a, sol = D.b.div(a);
+    if (!a.one()){
+      const den = a.n < 0n ? `(${qFirmado(a)})` : qHTML(a);
+      h += paso(`Deja la ${X} sola`,
+        `<p>La ${xHTML()} está multiplicada por ${qFirmado(a)}. Lo contrario de multiplicar es dividir, así que dividimos <strong>los dos lados</strong> entre ${qFirmado(a)}:</p>
+         <div class="ec"><span class="frac"><span>${lado(I)}</span><span class="rojo">${den}</span></span><span class="igual">=</span><span class="frac"><span>${qFirmado(D.b)}</span><span class="rojo">${den}</span></span></div>
+         ${ec(xHTML(), qFirmado(sol))}
+         ${a.n < 0n ? `<p class="pista">Al dividir entre un número negativo cambia el signo: menos entre menos da más, y más entre menos da menos.</p>` : ''}
+         ${sol.d !== 1n ? `<p class="pista">El resultado es una fracción. Se deja así porque es exacto; como decimal es aproximadamente ${sol.num().toLocaleString('es-ES', {maximumFractionDigits:4})}.</p>` : ''}`);
+    }
+
+    // 7) comprobar
+    const ev = u => u.a.mul(sol).add(u.b);
+    const valTxt = `(${qTexto(sol)})`;
+    const simpleVal = sol.d === 1n && sol.n >= 0n;
+    const sust = txt => bonito(txt).replace(new RegExp(X, 'gi'), (m, i, str) => {
+      const antes = str[i - 1];
+      return (simpleVal && !(antes && /[0-9)]/.test(antes))) ? qTexto(sol) : valTxt;
+    });
+    const vi = ev(izq0), vd = ev(der0);
+    h += paso('Comprueba el resultado',
+      `<p>Cambiamos la ${xHTML()} por ${qFirmado(sol)} en la ecuación original y hacemos las cuentas de cada lado:</p>
+       <p>Lado izquierdo: <span class="ec">${sust(izqTxt)} = ${qFirmado(vi)}</span></p>
+       <p>Lado derecho: <span class="ec">${sust(derTxt)} = ${qFirmado(vd)}</span></p>
+       <p>${vi.eq(vd) ? `Los dos lados dan ${qFirmado(vi)}. ✓ ¡La balanza está equilibrada, el resultado es correcto!` : 'Los lados no coinciden; revisa la ecuación.'}</p>`);
+    h += '</ol>';
+    return h + `<div class="resultado"><div>La solución es</div><div class="grande">${xHTML()} = ${qFirmado(sol)}</div>
+      ${sol.d !== 1n ? `<div class="pista">Aproximadamente ${sol.num().toLocaleString('es-ES', {maximumFractionDigits:4})}.</div>` : ''}</div>`;
+  }
+
+  $('#resolver').addEventListener('click', resolver);
+  $('#ec').addEventListener('keydown', e => { if (e.key === 'Enter') resolver(); });
+  document.querySelectorAll('.ejemplos button').forEach(b =>
+    b.addEventListener('click', () => { $('#ec').value = b.textContent; resolver(); }));
+  resolver();
+})();
+</script>
+</body>
+</html>
