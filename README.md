@@ -1,4 +1,5 @@
 # Notas matemáticas
 
 Puedes descargar el repositorio y usar offline.
-https://hacknieto.github.io/math-notes/
+
+O usar en linea: https://hacknieto.github.io/math-notes/
