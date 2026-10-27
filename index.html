@@ -4,57 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Matemáticas paso a paso</title>
-<style>
-:root{
-  --paper:#fdfdfb; --grid:#dbe7f3; --ink:#1f3a68; --soft:#5a6b85;
-  --pen:#c8323a; --hl:#fff3a8; --card:#ffffffd9; --line:#b9cbe0;
-  color-scheme: light;
-  box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --paper:#141a24; --grid:#1f2a3a; --ink:#dbe6f7; --soft:#93a3bb;
-    --pen:#ff7a80; --hl:#4a4320; --card:#182131e6; --line:#2f3f57;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"]{
-  --paper:#141a24; --grid:#1f2a3a; --ink:#dbe6f7; --soft:#93a3bb;
-  --pen:#ff7a80; --hl:#4a4320; --card:#182131e6; --line:#2f3f57;
-  color-scheme: dark;
-}
-*,*::before,*::after{box-sizing:inherit}
-body{
-  margin:0; color:var(--ink); background-color:var(--paper);
-  background-image:linear-gradient(var(--grid) 1px, transparent 1px),linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size:24px 24px;
-  font-family:"Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-size:1.05rem; line-height:1.55;
-}
-main{max-width:720px; margin:0 auto; padding:40px 18px 64px}
-h1{font-family:Georgia,"Times New Roman",serif; font-size:clamp(2.2rem,8vw,3.2rem); line-height:1.05; margin:0 0 10px}
-.sub{color:var(--soft); margin:0 0 36px; max-width:52ch}
-section{margin-bottom:36px}
-h2{font-family:Georgia,serif; font-size:1.6rem; margin:0 0 2px; display:flex; align-items:baseline; gap:12px}
-h2 .marca{font-size:1.1rem; color:var(--pen); border:2px solid var(--pen); border-radius:50%; width:2em; height:2em; display:inline-grid; place-items:center; flex:none}
-.tema{color:var(--soft); margin:0 0 12px 3.4rem}
-ul{list-style:none; margin:0 0 0 3.4rem; padding:0}
-li + li{margin-top:10px}
-a.herramienta{
-  display:block; text-decoration:none; color:var(--ink); background:var(--card);
-  border-left:4px solid var(--ink); border-radius:0 12px 12px 0; padding:12px 16px;
-}
-a.herramienta:hover{border-left-color:var(--pen)}
-a.herramienta:focus-visible{outline:3px solid var(--pen); outline-offset:2px}
-a.herramienta strong{display:block; font-size:1.15rem}
-a.herramienta span{color:var(--soft); font-size:.95rem}
-footer{border-top:1px dashed var(--line); padding-top:16px; color:var(--soft); font-size:.95rem}
-@media (max-width:480px){ .tema, ul{margin-left:0} }
-</style>
+<link rel="stylesheet" href="css/tema.css">
+<link rel="stylesheet" href="css/estilos.css">
 </head>
-<body>
+<body class="pagina-inicio">
 <main>
   <h1>Matemáticas paso a paso</h1>
   <p class="sub">Herramientas para resolver ejercicios y entender cada paso. Elige un tema.</p>
@@ -63,12 +16,10 @@ footer{border-top:1px dashed var(--line); padding-top:16px; color:var(--soft); f
     <h2 id="t-aritmetica"><span class="marca" aria-hidden="true">√</span>Aritmética</h2>
     <p class="tema">Números y operaciones: potencias, raíces, fracciones…</p>
     <ul>
-      <li>
-        <a class="herramienta" href="aritmetica/raiz-cuadrada.html">
-          <strong>Raíz cuadrada</strong>
-          <span>Calcula la raíz de cualquier número con 7 métodos distintos, del babilónico a la regla y el compás.</span>
-        </a>
-      </li>
+      <li><a class="herramienta" href="aritmetica/raiz-cuadrada.html">
+        <strong>Raíz cuadrada</strong>
+        <span>Calcula la raíz de cualquier número con 7 métodos distintos, del babilónico a la regla y el compás.</span>
+      </a></li>
     </ul>
   </section>
 
@@ -76,22 +27,39 @@ footer{border-top:1px dashed var(--line); padding-top:16px; color:var(--soft); f
     <h2 id="t-algebra"><span class="marca" aria-hidden="true"><i>x</i></span>Álgebra</h2>
     <p class="tema">Usar letras para encontrar números desconocidos.</p>
     <ul>
-      <li>
-        <a class="herramienta" href="algebra/ecuaciones-primer-grado.html">
-          <strong>Ecuaciones de primer grado</strong>
-          <span>Despeja la incógnita paso a paso, con paréntesis, fracciones, comprobación y gráfica.</span>
-        </a>
-      </li>
-      <li>
-        <a class="herramienta" href="algebra/ecuaciones-segundo-grado.html">
-          <strong>Ecuaciones de segundo grado</strong>
-          <span>Resuelve ecuaciones con <i>x</i>² por fórmula general, factorización o completando el cuadrado, y mira su parábola.</span>
-        </a>
-      </li>
+      <li><a class="herramienta" href="algebra/ecuaciones-primer-grado.html">
+        <strong>Ecuaciones de primer grado</strong>
+        <span>Despeja la incógnita paso a paso, con paréntesis, fracciones, comprobación y gráfica.</span>
+      </a></li>
+      <li><a class="herramienta" href="algebra/ecuaciones-segundo-grado.html">
+        <strong>Ecuaciones de segundo grado</strong>
+        <span>Resuelve ecuaciones con <i>x</i>² por fórmula general, factorización o completando el cuadrado, y mira su parábola.</span>
+      </a></li>
     </ul>
   </section>
 
-  <!-- <footer>Funciona sin internet: descarga la carpeta completa y abre el archivo index.html.</footer> -->
+  <section aria-labelledby="t-calculo">
+    <h2 id="t-calculo"><span class="marca" aria-hidden="true">∫</span>Cálculo</h2>
+    <p class="tema">Cómo cambian las cosas: inclinaciones, velocidades y áreas.</p>
+    <ul>
+      <li><a class="herramienta" href="calculo/derivadas.html">
+        <strong>La derivada</strong>
+        <span>Descubre con controles interactivos qué es la derivada y aprende a calcularla con reglas.</span>
+      </a></li>
+    </ul>
+  </section>
+
+  <footer>
+    <p class="en-linea"><strong>¿Sin internet en clase?</strong> Descarga el sitio desde <a href="https://github.com/hacknieto/math-notes">GitHub</a> con el botón <em>Code → Download ZIP</em>, descomprímelo y abre <code>index.html</code>. Conserva la carpeta completa para que se vean los estilos.</p>
+    <p class="sin-internet">Estás usando la copia sin internet. La versión en línea, siempre actualizada, está en <a href="https://hacknieto.github.io/math-notes/">hacknieto.github.io/math-notes</a>.</p>
+  </footer>
+  <script>
+    // Muestra solo el mensaje que corresponde: en línea o abierto desde la computadora.
+    (function(){
+      var local = location.protocol === 'file:';
+      document.querySelector(local ? '.en-linea' : '.sin-internet').hidden = true;
+    })();
+  </script>
 </main>
 </body>
 </html>

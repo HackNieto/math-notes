@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La derivada paso a paso</title>
+<link rel="stylesheet" href="../css/tema.css">
+<link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body class="pagina-derivadas">
+<main>
+  <a class="volver" href="../index.html">← Volver al menú</a>
+  <h1>La derivada paso a paso</h1>
+  <p class="sub">La derivada mide qué tan inclinada está una curva en cada punto. Muévele a los controles y descúbrelo tú.</p>
+
+  <div class="panel">
+    <label for="fx">Tu función</label>
+    <div class="entrada">
+      <span class="etiqueta-f">f(<i>x</i>) =</span>
+      <input id="fx" value="x^2" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button id="usar">Usar</button>
+    </div>
+    <p class="ayuda">Escribe un polinomio con x, por ejemplo 2x^2 − 3x + 1. Las potencias van con ^ (x^3).</p>
+    <p class="error" id="error" hidden></p>
+  </div>
+  <div class="ejemplos">Prueba con:
+    <button>x^2</button><button>2x + 1</button><button>x^3 - 3x</button><button>-x^2 + 4</button><button>0,5x^3 - 2x^2 + 1</button><button>5</button>
+  </div>
+
+  <section class="seccion">
+    <h2><span class="n">1</span>La idea: la inclinación</h2>
+    <p>Imagina una rampa. Su <strong>pendiente</strong> dice qué tan inclinada está: cuánto <strong>sube</strong> por cada paso que <strong>avanzas</strong>.</p>
+    <div class="destacado">pendiente = cuánto sube ÷ cuánto avanza</div>
+    <p>Por ejemplo, si una rampa sube 3 metros mientras avanzas 6, su pendiente es 3 ÷ 6 = 0,5. Si baja, la pendiente es negativa, y si está plana, es 0.</p>
+    <p>En una recta la inclinación es siempre la misma. Pero en una curva <strong>cambia en cada punto</strong>: a veces sube mucho, a veces poco, a veces baja. La <strong>derivada</strong> es justamente la inclinación de la curva en un punto exacto.</p>
+    <p class="pista">Ejemplo de la vida real: si f(<i>x</i>) fuera la distancia que recorre un coche en el tiempo <i>x</i>, la derivada sería su velocidad en cada instante.</p>
+  </section>
+
+  <section class="seccion">
+    <h2><span class="n">2</span>¿Cómo se mide la inclinación en un solo punto?</h2>
+    <p>El problema: para medir cuánto sube y cuánto avanza necesitamos <strong>dos puntos</strong>. Así que tomamos el punto <strong class="texto-rojo">P</strong> y otro punto <strong class="texto-verde">Q</strong> un poquito más adelante, y trazamos la recta que pasa por los dos.</p>
+    <div class="control">
+      <label for="a1"><span>Punto P en <i>x</i> =</span> <output id="a1v"></output></label>
+      <input type="range" id="a1" min="-2.5" max="2.5" step="0.05" value="1">
+    </div>
+    <div class="control">
+      <label for="h1"><span>Distancia de P a Q (h) =</span> <output id="h1v"></output></label>
+      <input type="range" id="h1" min="0" max="1000" step="1" value="707">
+    </div>
+    <div id="g1"></div>
+    <div class="lecturas">
+      <div><small>Avanza (de P a Q)</small><b id="dx"></b></div>
+      <div><small id="dyt">Sube</small><b id="dy"></b></div>
+      <div><small>Pendiente = sube ÷ avanza</small><b id="m"></b></div>
+    </div>
+    <div class="botones"><button id="acercar">▶ Acercar Q poco a poco</button><button id="alejar">Alejar Q</button></div>
+    <p>Ahora <strong>acerca Q a P</strong> y fíjate en la pendiente. Cuando Q está pegadísimo a P, la recta casi toca la curva en un solo punto: se llama <strong>recta tangente</strong>.</p>
+    <div class="tabla"><table><thead><tr><th>Distancia h</th><th>Pendiente</th></tr></thead><tbody id="tabla1"></tbody></table></div>
+    <p id="concl1"></p>
+  </section>
+
+  <section class="seccion">
+    <h2><span class="n">3</span>La derivada en cada punto</h2>
+    <p>Mueve el punto por toda la curva. La recta roja es la tangente, y su pendiente es la derivada en ese punto. Abajo se dibuja una <strong>nueva curva</strong> con todas esas pendientes: esa curva es la <strong>función derivada</strong>, que se escribe f′(<i>x</i>) y se lee “f prima de <i>x</i>”.</p>
+    <div class="control">
+      <label for="a2"><span>Punto en <i>x</i> =</span> <output id="a2v"></output></label>
+      <input type="range" id="a2" min="-2.5" max="2.5" step="0.05" value="-2">
+    </div>
+    <div class="botones"><button id="recorrer">▶ Recorrer la curva</button></div>
+    <p><strong>Tu función</strong> f(<i>x</i>) con su tangente:</p>
+    <div id="g2"></div>
+    <p><strong>Su derivada</strong> f′(<i>x</i>): cada punto es la pendiente de arriba.</p>
+    <div id="g3"></div>
+    <div class="destacado" id="lectura3"></div>
+    <p class="pista">Fíjate: donde la curva de arriba <span class="sube">sube</span>, la de abajo está <strong>arriba del cero</strong>. Donde <span class="baja">baja</span>, está <strong>abajo del cero</strong>. Y donde la curva de arriba hace una “cima” o un “valle”, la derivada vale <strong>0</strong>.</p>
+  </section>
+
+  <section class="seccion">
+    <h2><span class="n">4</span>Calcúlala con reglas</h2>
+    <p>Medir con puntos muy cercanos funciona, pero es mucho trabajo. Por suerte hay <strong>reglas</strong> que dan la derivada exacta de un polinomio, término por término.</p>
+    <div id="reglas"></div>
+  </section>
+</main>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+
+  // ---------- fracciones exactas ----------
+  const gcd = (a, b) => { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) [a, b] = [b, a % b]; return a; };
+  const absB = a => a < 0n ? -a : a;
+  class Q {
+    constructor(n, d = 1n){ if (d < 0n){ n = -n; d = -d; } const g = gcd(n, d) || 1n; this.n = n / g; this.d = d / g; }
+    add(o){ return new Q(this.n*o.d + o.n*this.d, this.d*o.d); }
+    sub(o){ return new Q(this.n*o.d - o.n*this.d, this.d*o.d); }
+    mul(o){ return new Q(this.n*o.n, this.d*o.d); }
+    div(o){ return new Q(this.n*o.d, this.d*o.n); }
+    neg(){ return new Q(-this.n, this.d); }
+    abs(){ return new Q(absB(this.n), this.d); }
+    zero(){ return this.n === 0n; }
+    one(){ return this.n === 1n && this.d === 1n; }
+    num(){ return Number(this.n) / Number(this.d); }
+  }
+  const Q0 = new Q(0n), Q1 = new Q(1n), q = n => new Q(BigInt(n));
+  const numQ = s => { const [i, f = ''] = s.split('.'); return new Q(BigInt((i || '0') + f), 10n ** BigInt(f.length)); };
+  class Fallo extends Error {}
+  const fallo = m => new Fallo(m);
+
+  // ---------- polinomios hasta grado 6 ----------
+  const G = 6;
+  const cero = () => Array(G + 1).fill(Q0);
+  const pAdd = (u, v) => u.map((c, i) => c.add(v[i]));
+  const pSub = (u, v) => u.map((c, i) => c.sub(v[i]));
+  const pNeg = u => u.map(c => c.neg());
+  function pMul(u, v){
+    const r = cero();
+    for (let i = 0; i <= G; i++) for (let j = 0; j <= G; j++){
+      if (u[i].zero() || v[j].zero()) continue;
+      if (i + j > G) throw fallo('La potencia es muy grande. Usa polinomios hasta x^6.');
+      r[i+j] = r[i+j].add(u[i].mul(v[j]));
+    }
+    return r;
+  }
+  function pDiv(u, v){
+    if (v.some((c, i) => i > 0 && !c.zero())) throw fallo('Esta herramienta trabaja con polinomios: la x no puede estar dividiendo.');
+    if (v[0].zero()) throw fallo('Hay una división entre cero.');
+    return u.map(c => c.div(v[0]));
+  }
+  function tokens(s){
+    s = s.replace(/[−–—]/g, '-').replace(/[×·]/g, '*').replace(/÷/g, '/').replace(/\s+/g, '');
+    const t = []; let i = 0;
+    while (i < s.length){
+      const c = s[i];
+      if (/[0-9.,]/.test(c)){
+        let j = i; while (j < s.length && /[0-9.,]/.test(s[j])) j++;
+        const raw = s.slice(i, j), v = raw.replace(',', '.');
+        if (/[.,].*[.,]/.test(raw) || v === '.') throw fallo(`Revisa el número “${raw}”.`);
+        t.push({t:'num', v:numQ(v)}); i = j; continue;
+      }
+      if (c === 'x' || c === 'X'){ t.push({t:'var'}); i++; continue; }
+      if (/[a-zA-Z]/.test(c)) throw fallo('Usa la letra x como variable.');
+      if (c === '²'){ t.push({t:'^'}, {t:'num', v:q(2)}); i++; continue; }
+      if (c === '³'){ t.push({t:'^'}, {t:'num', v:q(3)}); i++; continue; }
+      if ('+-*/()^'.includes(c)){ t.push({t:c}); i++; continue; }
+      if (c === '=') throw fallo('Escribe solo la expresión, sin el signo =. Por ejemplo: x^2 + 1.');
+      throw fallo(`No reconozco el símbolo “${c}”.`);
+    }
+    return t;
+  }
+  function leer(s){
+    const t = tokens(s); let p = 0;
+    if (!t.length) throw fallo('Escribe una función, por ejemplo x^2.');
+    const ver = () => t[p], tomar = () => t[p++];
+    function expr(){ let v = term(); while (ver() && (ver().t === '+' || ver().t === '-')){ const op = tomar().t, r = term(); v = op === '+' ? pAdd(v, r) : pSub(v, r); } return v; }
+    function term(){ let v = un(); for (;;){ const k = ver(); if (!k) break;
+      if (k.t === '*'){ tomar(); v = pMul(v, un()); } else if (k.t === '/'){ tomar(); v = pDiv(v, un()); }
+      else if (k.t === 'num' || k.t === 'var' || k.t === '('){ v = pMul(v, un()); } else break; } return v; }
+    function un(){ const k = ver(); if (k && k.t === '-'){ tomar(); return pNeg(un()); } if (k && k.t === '+'){ tomar(); return un(); } return pot(); }
+    function pot(){ let v = prim(); while (ver() && ver().t === '^'){ tomar(); const e = tomar();
+      if (!e || e.t !== 'num' || e.v.d !== 1n || e.v.n > 6n) throw fallo('Después de ^ escribe un número entero del 0 al 6, por ejemplo x^3.');
+      let r = cero(); r[0] = Q1; for (let k = 0n; k < e.v.n; k++) r = pMul(r, v); v = r; } return v; }
+    function prim(){ const k = tomar(); if (!k) throw fallo('A la función le falta algo al final.');
+      if (k.t === 'num'){ const r = cero(); r[0] = k.v; return r; }
+      if (k.t === 'var'){ const r = cero(); r[1] = Q1; return r; }
+      if (k.t === '('){ const v = expr(); if (!ver() || ver().t !== ')') throw fallo('Falta cerrar un paréntesis.'); tomar(); return v; }
+      throw fallo(`Hay un signo “${k.t}” fuera de lugar.`); }
+    const v = expr();
+    if (p < t.length) throw fallo('Revisa cómo está escrita la función.');
+    return v;
+  }
+
+  // ---------- formato ----------
+  const qHTML = v => v.d === 1n ? absB(v.n).toString() : `<span class="frac"><span>${absB(v.n)}</span><span>${v.d}</span></span>`;
+  const xp = k => k === 0 ? '' : k === 1 ? '<i>x</i>' : `<i>x</i><sup>${k}</sup>`;
+  function termino(c, k, primero){
+    const neg = c.n < 0n, ab = c.abs();
+    const cuerpo = k === 0 ? qHTML(ab) : (ab.one() ? '' : qHTML(ab)) + xp(k);
+    return (primero ? (neg ? '−' : '') : (neg ? ' − ' : ' + ')) + cuerpo;
+  }
+  function poli(u){
+    let s = '', primero = true;
+    for (let k = G; k >= 0; k--){ if (u[k].zero()) continue; s += termino(u[k], k, primero); primero = false; }
+    return s || '0';
+  }
+  const deriv = u => u.map((c, i) => i < G ? u[i+1].mul(q(i+1)) : Q0);
+  const fmt = (v, d = 3) => { const r = Math.round(v * 10**d) / 10**d; return (r || 0).toLocaleString('es-ES', {maximumFractionDigits:d, useGrouping:false}).replace('-', '−'); };
+  const evalF = c => x => { let r = 0; for (let k = c.length - 1; k >= 0; k--) r = r * x + c[k]; return r; };
+
+  // ---------- gráfica (SVG sin librerías) ----------
+  let idGraf = 0;
+  const fmtG = v => { const r = Math.round(v * 1e6) / 1e6; return (Object.is(r, -0) ? 0 : r).toLocaleString('es-ES', {maximumFractionDigits:2, useGrouping:false}).replace('-', '−'); };
+  function paso10(span){
+    const raw = span / 6, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p;
+  }
+  function grafica({xmin, xmax, ymin, ymax, curvas = [], puntos = [], titulo = 'Gráfica'}){
+    const W = 400, H = 300, ml = 40, mr = 12, mt = 12, mb = 28;
+    const sx = x => ml + (x - xmin) / (xmax - xmin) * (W - ml - mr);
+    const sy = y => mt + (ymax - y) / (ymax - ymin) * (H - mt - mb);
+    const id = 'clip' + (++idGraf);
+    let g = '';
+    const dx = paso10(xmax - xmin), dy = paso10(ymax - ymin);
+    for (let x = Math.ceil(xmin / dx) * dx; x <= xmax + 1e-9; x += dx){
+      const X = sx(x).toFixed(1);
+      g += `<line x1="${X}" y1="${mt}" x2="${X}" y2="${H - mb}" class="g-red"/><text x="${X}" y="${H - mb + 16}" text-anchor="middle" class="g-num">${fmtG(x)}</text>`;
+    }
+    for (let y = Math.ceil(ymin / dy) * dy; y <= ymax + 1e-9; y += dy){
+      const Y = sy(y).toFixed(1);
+      g += `<line x1="${ml}" y1="${Y}" x2="${W - mr}" y2="${Y}" class="g-red"/><text x="${ml - 5}" y="${(+Y + 4).toFixed(1)}" text-anchor="end" class="g-num">${fmtG(y)}</text>`;
+    }
+    if (xmin <= 0 && xmax >= 0) g += `<line x1="${sx(0).toFixed(1)}" y1="${mt}" x2="${sx(0).toFixed(1)}" y2="${H - mb}" class="g-eje"/>`;
+    if (ymin <= 0 && ymax >= 0) g += `<line x1="${ml}" y1="${sy(0).toFixed(1)}" x2="${W - mr}" y2="${sy(0).toFixed(1)}" class="g-eje"/>`;
+    let c = '';
+    curvas.forEach(cv => {
+      const pts = [];
+      for (let i = 0; i <= 240; i++){
+        const x = xmin + (xmax - xmin) * i / 240, y = cv.f(x);
+        const Y = Math.max(-2000, Math.min(2000, sy(y)));
+        pts.push(`${sx(x).toFixed(1)},${Y.toFixed(1)}`);
+      }
+      c += `<polyline points="${pts.join(' ')}" class="${cv.clase || 'g-c1'}"/>`;
+    });
+    let p = '';
+    puntos.forEach(pt => {
+      const X = sx(pt.x), Y = sy(pt.y);
+      p += `<circle cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" r="6" class="${pt.clase || 'g-pt'}"/>`;
+      if (pt.texto){
+        const izq = pt.izq ?? (X > W * 0.62), abajo = pt.dy ?? (pt.abajo ? 20 : -10);
+        p += `<text x="${(X + (izq ? -9 : 9)).toFixed(1)}" y="${Math.max(mt + 12, Math.min(H - mb - 4, Y + abajo)).toFixed(1)}" text-anchor="${izq ? 'end' : 'start'}" class="${pt.claseTxt || 'g-txt'}">${pt.texto}</text>`;
+      }
+    });
+    return `<div class="grafica"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${titulo}">
+      <defs><clipPath id="${id}"><rect x="${ml}" y="${mt}" width="${W - ml - mr}" height="${H - mt - mb}"/></clipPath></defs>
+      ${g}<g clip-path="url(#${id})">${c}</g>${p}</svg></div>`;
+  }
+  function rangoY(valores, incluirCero){
+    let lo = Math.min(...valores), hi = Math.max(...valores);
+    if (incluirCero){ lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+    if (hi - lo < 1e-9){ lo -= 2; hi += 2; }
+    const pad = (hi - lo) * 0.1;
+    return [lo - pad, hi + pad];
+  }
+
+
+  // ---------- dibujo dinámico ----------
+  const W = 400, H = 280, ml = 40, mr = 12, mt = 12, mb = 28;
+  function marco(v, id){
+    const sx = x => ml + (x - v.xmin) / (v.xmax - v.xmin) * (W - ml - mr);
+    const sy = y => mt + (v.ymax - y) / (v.ymax - v.ymin) * (H - mt - mb);
+    let g = '';
+    const dx = paso10(v.xmax - v.xmin), dy = paso10(v.ymax - v.ymin);
+    for (let x = Math.ceil(v.xmin / dx) * dx; x <= v.xmax + 1e-9; x += dx){ const X = sx(x).toFixed(1); g += `<line x1="${X}" y1="${mt}" x2="${X}" y2="${H - mb}" class="g-red"/><text x="${X}" y="${H - mb + 16}" text-anchor="middle" class="g-num">${fmtG(x)}</text>`; }
+    for (let y = Math.ceil(v.ymin / dy) * dy; y <= v.ymax + 1e-9; y += dy){ const Y = sy(y).toFixed(1); g += `<line x1="${ml}" y1="${Y}" x2="${W - mr}" y2="${Y}" class="g-red"/><text x="${ml - 5}" y="${(+Y + 4).toFixed(1)}" text-anchor="end" class="g-num">${fmtG(y)}</text>`; }
+    if (v.xmin <= 0 && v.xmax >= 0) g += `<line x1="${sx(0).toFixed(1)}" y1="${mt}" x2="${sx(0).toFixed(1)}" y2="${H - mb}" class="g-eje"/>`;
+    if (v.ymin <= 0 && v.ymax >= 0) g += `<line x1="${ml}" y1="${sy(0).toFixed(1)}" x2="${W - mr}" y2="${sy(0).toFixed(1)}" class="g-eje"/>`;
+    const clip = `<defs><clipPath id="${id}"><rect x="${ml}" y="${mt}" width="${W - ml - mr}" height="${H - mt - mb}"/></clipPath></defs>`;
+    return {sx, sy, g, clip};
+  }
+  const lim = y => Math.max(-1e5, Math.min(1e5, y));
+  function curva(f, v, sx, sy, clase){
+    const pts = [];
+    for (let i = 0; i <= 200; i++){ const x = v.xmin + (v.xmax - v.xmin) * i / 200; pts.push(`${sx(x).toFixed(1)},${lim(sy(f(x))).toFixed(1)}`); }
+    return `<polyline points="${pts.join(' ')}" class="${clase}"/>`;
+  }
+  const recta = (x0, y0, m, v, sx, sy, clase) => `<line x1="${sx(v.xmin).toFixed(1)}" y1="${lim(sy(y0 + m*(v.xmin - x0))).toFixed(1)}" x2="${sx(v.xmax).toFixed(1)}" y2="${lim(sy(y0 + m*(v.xmax - x0))).toFixed(1)}" class="${clase}"/>`;
+  const svg = (inner, etiqueta) => `<div class="grafica"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${etiqueta}">${inner}</svg></div>`;
+  function ventana(f){
+    const xmin = -3, xmax = 3, ys = [];
+    for (let i = 0; i <= 80; i++) ys.push(f(xmin + 6 * i / 80));
+    let [ymin, ymax] = rangoY(ys, true);
+    ymin = Math.max(ymin, -150); ymax = Math.min(ymax, 150);
+    return {xmin, xmax, ymin, ymax};
+  }
+
+  // ---------- estado ----------
+  let F, Fp, f, fp, txtF, txtFp, v1, v3;
+  const hDe = s => 0.001 + 1.5 * Math.pow(s / 1000, 2);
+
+  function dibujar1(){
+    const a = +$('#a1').value, h = hDe(+$('#h1').value);
+    $('#a1v').textContent = fmt(a, 2); $('#h1v').textContent = fmt(h, 3);
+    const ya = f(a), yb = f(a + h), dy = yb - ya, m = dy / h;
+    const {sx, sy, g, clip} = marco(v1, 'c1');
+    let inner = clip + g + `<g clip-path="url(#c1)">` + curva(f, v1, sx, sy, 'g-c1') + recta(a, ya, m, v1, sx, sy, 'g-sec');
+    inner += `<polyline points="${sx(a).toFixed(1)},${lim(sy(ya)).toFixed(1)} ${sx(a+h).toFixed(1)},${lim(sy(ya)).toFixed(1)} ${sx(a+h).toFixed(1)},${lim(sy(yb)).toFixed(1)}" class="g-tri"/></g>`;
+    if (h > 0.25){
+      inner += `<text x="${((sx(a) + sx(a+h)) / 2).toFixed(1)}" y="${(lim(sy(ya)) + (dy >= 0 ? 16 : -8)).toFixed(1)}" text-anchor="middle" class="g-lbl">avanza</text>`;
+      if (Math.abs(sy(yb) - sy(ya)) > 24) inner += `<text x="${(sx(a+h) + 6).toFixed(1)}" y="${((lim(sy(ya)) + lim(sy(yb))) / 2 + 4).toFixed(1)}" class="g-lbl">${dy >= 0 ? 'sube' : 'baja'}</text>`;
+    }
+    inner += `<circle cx="${sx(a+h).toFixed(1)}" cy="${lim(sy(yb)).toFixed(1)}" r="6" class="g-q"/><circle cx="${sx(a).toFixed(1)}" cy="${lim(sy(ya)).toFixed(1)}" r="6" class="g-pt"/>`;
+    inner += `<text x="${(sx(a) - 8).toFixed(1)}" y="${(lim(sy(ya)) - 10).toFixed(1)}" text-anchor="end" class="g-txt">P</text>`;
+    if (h > 0.15) inner += `<text x="${(sx(a+h) + 8).toFixed(1)}" y="${(lim(sy(yb)) - 10).toFixed(1)}" class="g-txt g-txt-q">Q</text>`;
+    $('#g1').innerHTML = svg(inner, `Curva con la recta que pasa por P y Q, pendiente ${fmt(m)}`);
+    $('#dx').textContent = fmt(h, 3);
+    $('#dyt').textContent = dy >= 0 ? 'Sube (de P a Q)' : 'Baja (de P a Q)';
+    $('#dy').textContent = fmt(dy, 4);
+    $('#m').textContent = `${fmt(dy, 4)} ÷ ${fmt(h, 3)} = ${fmt(m, 4)}`;
+  }
+  function tabla1(){
+    const a = +$('#a1').value;
+    let filas = '';
+    [1, 0.5, 0.1, 0.01, 0.001].forEach(h => { filas += `<tr><td>${fmt(h, 3)}</td><td>${fmt((f(a+h) - f(a)) / h, 4)}</td></tr>`; });
+    filas += `<tr class="exacta"><td>casi 0</td><td>${fmt(fp(a), 4)}</td></tr>`;
+    $('#tabla1').innerHTML = filas;
+    $('#concl1').innerHTML = F.slice(2).every(c => c.zero())
+      ? `En una recta, la pendiente es la misma sin importar dónde esté Q: siempre da <strong>${fmt(fp(a), 4)}</strong>. Por eso la derivada de una recta es un solo número.`
+      : `Mientras más cerca está Q, la pendiente se acerca a <strong>${fmt(fp(a), 4)}</strong>. Ese número es la <strong>derivada en <i>x</i> = ${fmt(a, 2)}</strong>: la inclinación exacta de la curva en P.`;
+  }
+
+  function dibujar2(){
+    const a = +$('#a2').value, ya = f(a), m = fp(a);
+    $('#a2v').textContent = fmt(a, 2);
+    let r = marco(v1, 'c2');
+    let inner = r.clip + r.g + `<g clip-path="url(#c2)">${curva(f, v1, r.sx, r.sy, 'g-c1')}${recta(a, ya, m, v1, r.sx, r.sy, 'g-sec')}</g>`;
+    inner += `<circle cx="${r.sx(a).toFixed(1)}" cy="${lim(r.sy(ya)).toFixed(1)}" r="6" class="g-pt"/>`;
+    $('#g2').innerHTML = svg(inner, `Curva f(x) con su tangente en x = ${fmt(a, 2)}`);
+    r = marco(v3, 'c3');
+    const pts = [];
+    for (let i = 0; i <= 200; i++){ const x = v3.xmin + (a - v3.xmin) * i / 200; pts.push(`${r.sx(x).toFixed(1)},${lim(r.sy(fp(x))).toFixed(1)}`); }
+    inner = r.clip + r.g + `<g clip-path="url(#c3)">${curva(fp, v3, r.sx, r.sy, 'g-c3').replace('class="g-c3"', 'class="g-c3 g-c3-tenue"')}<polyline points="${pts.join(' ')}" class="g-c3 g-c3-trazo"/></g>`;
+    inner += `<line x1="${r.sx(a).toFixed(1)}" y1="${mt}" x2="${r.sx(a).toFixed(1)}" y2="${H - mb}" class="g-tri"/>`;
+    inner += `<circle cx="${r.sx(a).toFixed(1)}" cy="${lim(r.sy(m)).toFixed(1)}" r="6" class="g-pt"/>`;
+    $('#g3').innerHTML = svg(inner, `Curva de la derivada, con el punto (${fmt(a, 2)}, ${fmt(m)})`);
+    const estado = Math.abs(m) < 0.05 ? `<span class="plana">está plana</span> (la tangente es horizontal)` : m > 0 ? `<span class="sube">sube ↗</span>` : `<span class="baja">baja ↘</span>`;
+    const fuerza = Math.abs(m) < 0.05 ? '' : Math.abs(m) > 4 ? ', y muy empinada' : Math.abs(m) < 1 ? ', pero poco' : '';
+    $('#lectura3').innerHTML = `En <i>x</i> = ${fmt(a, 2)}, la pendiente de la tangente es <strong>f′(${fmt(a, 2)}) = ${fmt(m, 3)}</strong>: la curva ${estado}${fuerza}.`;
+    actualizarComprobacion();
+  }
+
+  function reglas(){
+    let filas = '';
+    let hay = false;
+    for (let k = G; k >= 0; k--){
+      const c = F[k]; if (c.zero()) continue; hay = true;
+      const t = termino(c, k, true);
+      let regla, res;
+      if (k === 0){ regla = 'Un número solo nunca cambia, su gráfica es plana: su derivada es 0.'; res = '0'; }
+      else if (k === 1){ regla = `<i>x</i> sola es <i>x</i><sup>1</sup>: el 1 baja a multiplicar y queda <i>x</i><sup>0</sup> = 1. Solo queda el número que la acompaña.`; res = termino(c, 0, true); }
+      else if (c.one()){ regla = `Baja el ${k} a multiplicar (se pone adelante) y al exponente réstale 1: ${k} − 1 = ${k - 1}.`; res = termino(c.mul(q(k)), k - 1, true); }
+      else { const nc = c.mul(q(k)); regla = `Baja el ${k} a multiplicar: ${c.n < 0n ? '(' : ''}${termino(c, 0, true)}${c.n < 0n ? ')' : ''} × ${k} = ${termino(nc, 0, true)}. Al exponente réstale 1: ${k} − 1 = ${k - 1}.`; res = termino(nc, k - 1, true); }
+      filas += `<tr><td>${t}</td><td class="izq">${regla}</td><td><strong>${res}</strong></td></tr>`;
+    }
+    if (!hay) filas = `<tr><td>0</td><td class="izq">El cero es un número solo: su derivada es 0.</td><td><strong>0</strong></td></tr>`;
+    $('#reglas').innerHTML = `
+      <ol class="pasos">
+        <li><h2>Conoce las reglas</h2>
+          <p><strong>Regla de la potencia:</strong> para <i>x</i><sup>n</sup>, el exponente <strong>baja a multiplicar</strong> y al exponente <strong>se le resta 1</strong>.</p>
+          <p><span class="ec"><i>x</i><sup>n</sup> → n · <i>x</i><sup>n − 1</sup></span> &nbsp; por ejemplo: <span class="ec"><i>x</i><sup>3</sup> → 3<i>x</i><sup>2</sup></span></p>
+          <p><strong>Número que multiplica:</strong> se queda multiplicando. Así, 5<i>x</i><sup>2</sup> → 5 × 2<i>x</i> = 10<i>x</i>.</p>
+          <p><strong>Número solo:</strong> su derivada es 0, porque no cambia.</p>
+          <p><strong>Sumas y restas:</strong> se deriva cada término por separado.</p></li>
+        <li><h2>Escribe la función</h2>${'<div class="ec">f(<i>x</i>) = ' + txtF + '</div>'}</li>
+        <li><h2>Deriva término por término</h2>
+          <div class="tabla"><table><thead><tr><th>Término</th><th>Qué hacemos</th><th>Resultado</th></tr></thead><tbody>${filas}</tbody></table></div></li>
+        <li><h2>Junta los resultados</h2><div class="ec">f′(<i>x</i>) = ${txtFp}</div></li>
+        <li><h2>Comprueba con la gráfica</h2><div id="comprobacion"></div></li>
+      </ol>
+      <div class="resultado"><div>La derivada es</div><div class="grande">f′(<i>x</i>) = ${txtFp}</div></div>`;
+    actualizarComprobacion();
+  }
+  function actualizarComprobacion(){
+    const el = $('#comprobacion'); if (!el) return;
+    const a = +$('#a2').value;
+    const sust = poli(Fp) === '0' ? '0' : txtFp.replace(/<i>x<\/i>/g, `(${fmt(a, 2)})`);
+    el.innerHTML = `<p>Usa el punto de la sección 3 (<i>x</i> = ${fmt(a, 2)}). Sustituimos en la fórmula:</p>
+      <p><span class="ec">f′(${fmt(a, 2)}) = ${sust} = ${fmt(fp(a), 3)}</span></p>
+      <p>Es la misma pendiente que muestra la recta tangente. ✓ Las reglas y la gráfica dicen lo mismo.</p>`;
+  }
+
+  function usar(){
+    const err = $('#error');
+    try {
+      F = leer($('#fx').value.trim());
+    } catch(e){
+      if (e instanceof Fallo){ err.innerHTML = e.message; err.hidden = false; return; }
+      throw e;
+    }
+    err.hidden = true;
+    Fp = deriv(F);
+    f = evalF(F.map(c => c.num())); fp = evalF(Fp.map(c => c.num()));
+    txtF = poli(F); txtFp = poli(Fp);
+    v1 = ventana(f); v3 = ventana(fp);
+    dibujar1(); tabla1(); reglas(); dibujar2();
+  }
+
+  // ---------- animaciones ----------
+  const quieto = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  let anim = null;
+  function animar(input, desde, hasta, ms, alPaso){
+    cancelAnimationFrame(anim);
+    if (quieto){ input.value = hasta; alPaso(); return; }
+    const t0 = performance.now();
+    const paso = t => {
+      const u = Math.min(1, (t - t0) / ms);
+      input.value = desde + (hasta - desde) * u;
+      alPaso();
+      if (u < 1) anim = requestAnimationFrame(paso);
+    };
+    anim = requestAnimationFrame(paso);
+  }
+
+  $('#usar').addEventListener('click', usar);
+  $('#fx').addEventListener('keydown', e => { if (e.key === 'Enter') usar(); });
+  document.querySelectorAll('.ejemplos button').forEach(b => b.addEventListener('click', () => { $('#fx').value = b.textContent; usar(); }));
+  $('#a1').addEventListener('input', () => { dibujar1(); tabla1(); });
+  $('#h1').addEventListener('input', dibujar1);
+  $('#a2').addEventListener('input', dibujar2);
+  $('#acercar').addEventListener('click', () => animar($('#h1'), +$('#h1').value, 0, 3500, dibujar1));
+  $('#alejar').addEventListener('click', () => animar($('#h1'), +$('#h1').value, 707, 800, dibujar1));
+  $('#recorrer').addEventListener('click', () => animar($('#a2'), -2.5, 2.5, 6000, dibujar2));
+  usar();
+})();
+</script>
+</body>
+</html>

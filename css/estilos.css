@@ -1,0 +1,207 @@
+/* =============================================================
+   ESTILOS GENERALES
+   Componentes que comparten todas las páginas. Los colores, letras
+   y medidas vienen de tema.css, así que normalmente no hace falta
+   tocar este archivo para cambiar el aspecto del sitio.
+   ============================================================= */
+
+/* ---------- Base ---------- */
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; color:var(--ink); background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px, transparent 1px),linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:var(--cuadricula) var(--cuadricula);
+  font-family:var(--fuente-texto); font-size:var(--tamano-texto); line-height:1.55;
+  font-variant-numeric:tabular-nums;
+}
+main{max-width:var(--ancho-pagina); margin:0 auto; padding:24px 18px 64px}
+h1{font-family:var(--fuente-titulos); font-size:clamp(1.9rem,6vw,2.6rem); line-height:1.1; margin:14px 0 6px; font-weight:700}
+.sub{color:var(--soft); margin:0 0 22px}
+sup{font-size:.7em}
+
+/* ---------- Enlace para volver al menú ---------- */
+.volver{display:inline-block; color:var(--ink); font-weight:600; text-decoration:none; padding:6px 0; border-bottom:2px solid var(--line)}
+.volver:hover{border-bottom-color:var(--pen)}
+.volver:focus-visible{outline:3px solid var(--pen); outline-offset:3px}
+
+/* ---------- Panel de entrada ---------- */
+.panel{background:var(--card); border:2px solid var(--ink); border-radius:var(--radio-grande); padding:14px 16px}
+.panel label{display:block; font-weight:600; margin-bottom:6px}
+.entrada{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+.entrada input{
+  flex:1 1 220px; min-width:0; font-family:var(--fuente-titulos); font-size:1.6rem; color:var(--ink);
+  background:var(--paper); border:2px solid var(--ink); border-radius:var(--radio-chico); padding:6px 12px;
+}
+.entrada input:focus-visible{outline:3px solid var(--pen); outline-offset:2px}
+.etiqueta-f{font-family:var(--fuente-titulos); font-size:1.6rem}
+.ayuda{color:var(--soft); font-size:.92rem; margin:8px 0 0}
+
+/* Entrada con forma de raíz (página de raíz cuadrada) */
+.radical{font-family:var(--fuente-titulos); font-size:2.6rem; line-height:1; display:flex; align-items:stretch}
+.radical span.sym{padding-right:2px}
+.radical input{
+  font:inherit; font-size:2.2rem; width:5.5ch; color:var(--ink); background:transparent;
+  border:none; border-top:3px solid var(--ink); border-radius:0; padding:2px 6px 0; outline:none; flex:none;
+}
+.radical input:focus-visible{background:var(--hl); outline:none}
+
+/* ---------- Botones y menús ---------- */
+button{
+  font:inherit; font-weight:600; cursor:pointer; border-radius:var(--radio-chico);
+  border:2px solid var(--ink); background:var(--ink); color:var(--paper); padding:10px 18px;
+}
+button:focus-visible, select:focus-visible{outline:3px solid var(--pen); outline-offset:2px}
+.metodo{margin-top:14px; padding-top:12px; border-top:1px dashed var(--line)}
+.metodo label{display:block; font-weight:600; margin-bottom:6px}
+select{font:inherit; width:100%; color:var(--ink); background:var(--paper); border:2px solid var(--ink); border-radius:var(--radio-chico); padding:8px 10px}
+.desc{color:var(--soft); font-size:.95rem; margin:8px 0 0}
+.ejemplos{margin:12px 0 0; display:flex; gap:8px; flex-wrap:wrap; align-items:center; color:var(--soft); font-size:.95rem}
+.ejemplos button{background:transparent; color:var(--ink); padding:4px 12px; font-weight:500; border-width:1.5px; font-family:var(--fuente-titulos)}
+.boton-metodo, .botones button{background:transparent; color:var(--ink); padding:6px 14px; margin-top:6px}
+.botones{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+.error{color:var(--pen); font-weight:600; margin-top:16px}
+
+/* ---------- Pasos numerados ---------- */
+ol.pasos{list-style:none; padding:0; margin:28px 0 0; counter-reset:paso}
+ol.pasos > li{
+  counter-increment:paso; position:relative; background:var(--card); border-left:4px solid var(--ink);
+  border-radius:0 var(--radio) var(--radio) 0; padding:14px 16px 14px 56px; margin-bottom:16px;
+}
+ol.pasos > li::before{
+  content:counter(paso); position:absolute; left:14px; top:12px; width:30px; height:30px; border-radius:50%;
+  border:2px solid var(--pen); color:var(--pen); display:grid; place-items:center; font-weight:700; font-family:var(--fuente-titulos);
+}
+ol.pasos > li.aviso{border-left-color:var(--pen)}
+ol.pasos h2{font-size:1.1rem; margin:2px 0 6px}
+ol.pasos p{margin:6px 0}
+@media (prefers-reduced-motion:no-preference){
+  ol.pasos > li{animation:aparece .35s ease both}
+  @keyframes aparece{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+}
+
+/* ---------- Secciones grandes (página de derivadas) ---------- */
+.seccion{background:var(--card); border-left:4px solid var(--ink); border-radius:0 var(--radio) var(--radio) 0; padding:16px 18px; margin-top:22px}
+.seccion > h2{font-family:var(--fuente-titulos); font-size:1.35rem; margin:0 0 8px; display:flex; gap:10px; align-items:baseline}
+.seccion h2 .n{flex:none; width:30px; height:30px; border-radius:50%; border:2px solid var(--pen); color:var(--pen); display:inline-grid; place-items:center; font-size:1rem}
+.seccion p{margin:6px 0}
+
+/* ---------- Cuentas y fórmulas ---------- */
+.cuenta{font-family:var(--fuente-titulos); font-size:1.15rem; background:var(--hl); display:inline-block; padding:2px 8px; border-radius:6px; margin:4px 0}
+.ec{font-family:var(--fuente-titulos); font-size:1.35rem; background:var(--hl); display:inline-block; padding:4px 12px; border-radius:6px; margin:6px 0; max-width:100%; overflow-x:auto; white-space:nowrap}
+.ec .igual{margin:0 .35em}
+.ec i{font-style:italic}
+.frac{display:inline-flex; flex-direction:column; vertical-align:middle; text-align:center; font-size:.82em; line-height:1.1; margin:0 .12em}
+.frac > span:first-child{border-bottom:1.5px solid currentColor; padding:0 .2em}
+.ec .frac{font-size:.95em}
+.rad{border-top:1.5px solid currentColor; padding:0 .12em}
+.abc{display:flex; gap:10px; flex-wrap:wrap; margin:6px 0}
+.abc span{font-family:var(--fuente-titulos); font-size:1.2rem; background:var(--hl); border-radius:6px; padding:2px 10px}
+.destacado{background:var(--hl); border-radius:var(--radio-chico); padding:10px 12px; margin:10px 0}
+.pista{color:var(--soft); font-size:.95rem}
+
+/* ---------- Colores de apoyo en el texto ---------- */
+.rojo, .texto-rojo{color:var(--pen); font-weight:700}
+.texto-verde, .sube{color:var(--ok); font-weight:700}
+.baja{color:var(--pen); font-weight:700}
+.plana{color:var(--ink); font-weight:700}
+
+/* ---------- Tablas ---------- */
+.tabla{overflow-x:auto; margin-top:8px}
+table{border-collapse:collapse; font-size:.98rem}
+th,td{padding:6px 12px; text-align:center; border-bottom:1px solid var(--line); white-space:nowrap}
+th{color:var(--soft); font-weight:600}
+td.izq{text-align:left}
+.seccion td.izq{white-space:normal; min-width:200px}
+tr.si td, tr.exacta td{color:var(--ok); font-weight:700}
+tr.salto td{color:var(--soft)}
+tr.no td{color:var(--pen)}
+
+/* ---------- Resultado final ---------- */
+.resultado{margin-top:8px; border:2px solid var(--ok); border-radius:var(--radio-grande); padding:16px; background:var(--card)}
+.resultado .grande{font-family:var(--fuente-titulos); font-size:2.2rem; font-weight:700; color:var(--ok)}
+.resultado .linea{font-family:var(--fuente-titulos); font-size:2rem; font-weight:700; color:var(--ok); line-height:1.4}
+.resultado.otro{border-color:var(--pen)}
+.resultado.otro .grande{color:var(--pen); font-size:1.6rem}
+
+/* ---------- Controles deslizantes (página de derivadas) ---------- */
+.control{margin:12px 0 4px}
+.control label{display:flex; justify-content:space-between; gap:10px; font-weight:600; font-size:.98rem}
+.control label output{font-family:var(--fuente-titulos); font-weight:700; color:var(--pen)}
+input[type=range]{width:100%; accent-color:var(--pen); margin:6px 0 0}
+.lecturas{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; margin:10px 0}
+.lecturas div{background:var(--paper); border:1px solid var(--line); border-radius:var(--radio-chico); padding:8px 10px}
+.lecturas small{display:block; color:var(--soft); font-size:.85rem}
+.lecturas b{font-family:var(--fuente-titulos); font-size:1.15rem}
+
+/* ---------- Gráficas ---------- */
+.grafica{margin:10px 0 4px; overflow-x:auto}
+.grafica svg{display:block; width:100%; max-width:560px; min-width:280px; height:auto; background:var(--paper); border:1px solid var(--line); border-radius:var(--radio-chico)}
+.g-red{stroke:var(--line); stroke-width:1}
+.g-eje{stroke:var(--ink); stroke-width:1.6}
+.g-num{fill:var(--soft); font-size:11px; font-family:var(--fuente-texto)}
+.g-c1{fill:none; stroke:var(--ink); stroke-width:2.6}
+.g-c2{fill:none; stroke:var(--ok); stroke-width:2.6; stroke-dasharray:9 6}
+.g-c3{fill:none; stroke:var(--ok); stroke-width:2.6}
+.g-c3-tenue{opacity:.35}
+.g-c3-trazo{stroke-width:5}
+.g-sec{stroke:var(--pen); stroke-width:2.4; fill:none}
+.g-tri{stroke:var(--soft); stroke-width:1.6; stroke-dasharray:4 4; fill:none}
+.g-pt{fill:var(--pen); stroke:var(--paper); stroke-width:2}
+.g-pt2{fill:var(--paper); stroke:var(--ink); stroke-width:2}
+.g-q{fill:var(--ok); stroke:var(--paper); stroke-width:2}
+.g-txt, .g-txt2, .g-lbl{font-family:var(--fuente-texto); paint-order:stroke; stroke:var(--paper); stroke-width:4px}
+.g-txt{fill:var(--pen); font-size:13px; font-weight:700}
+.g-txt-q{fill:var(--ok)}
+.g-txt2{fill:var(--ink); font-size:12px}
+.g-lbl{fill:var(--soft); font-size:12px}
+.leyenda{display:flex; flex-direction:column; gap:4px; margin:6px 0; font-size:.95rem}
+.leyenda span.l{display:inline-block; width:28px; height:0; vertical-align:middle; margin-right:8px; border-top:3px solid var(--ink)}
+.leyenda span.l2{border-top:3px dashed var(--ok)}
+
+/* Dibujos de la página de raíz cuadrada */
+.dibujo{margin:14px 0 4px; overflow-x:auto}
+.dibujo svg{display:block; width:100%; min-width:300px; height:auto}
+.dibujo text{font-family:var(--fuente-texto)}
+.r-relleno{fill:var(--pen)}
+.r-linea{stroke:var(--pen)}
+
+/* =============================================================
+   AJUSTES DE PÁGINAS ESPECÍFICAS
+   ============================================================= */
+
+/* Raíz cuadrada: tablas a lo ancho, con los números alineados a la derecha */
+.pagina-raiz table{width:100%}
+.pagina-raiz table.angosta{width:auto}
+.pagina-raiz th, .pagina-raiz td{text-align:right; padding:6px 8px}
+.pagina-raiz th:first-child, .pagina-raiz td:first-child{text-align:center}
+.pagina-raiz td.izq{text-align:left}
+.pagina-raiz tr.salto td{text-align:center}
+
+/* Menú principal */
+.pagina-inicio main{padding-top:40px}
+.pagina-inicio h1{font-size:clamp(2.2rem,8vw,3.2rem); line-height:1.05; margin:0 0 10px}
+.pagina-inicio .sub{margin-bottom:36px; max-width:52ch}
+.pagina-inicio section{margin-bottom:36px}
+.pagina-inicio h2{font-family:var(--fuente-titulos); font-size:1.6rem; margin:0 0 2px; display:flex; align-items:baseline; gap:12px}
+.pagina-inicio h2 .marca{font-size:1.1rem; color:var(--pen); border:2px solid var(--pen); border-radius:50%; width:2em; height:2em; display:inline-grid; place-items:center; flex:none}
+.pagina-inicio .tema{color:var(--soft); margin:0 0 12px 3.4rem}
+.pagina-inicio ul{list-style:none; margin:0 0 0 3.4rem; padding:0}
+.pagina-inicio li + li{margin-top:10px}
+a.herramienta{display:block; text-decoration:none; color:var(--ink); background:var(--card); border-left:4px solid var(--ink); border-radius:0 var(--radio) var(--radio) 0; padding:12px 16px}
+a.herramienta:hover{border-left-color:var(--pen)}
+a.herramienta:focus-visible{outline:3px solid var(--pen); outline-offset:2px}
+a.herramienta strong{display:block; font-size:1.15rem}
+a.herramienta span{color:var(--soft); font-size:.95rem}
+.pagina-inicio footer{border-top:1px dashed var(--line); padding-top:16px; color:var(--soft); font-size:.95rem}
+.pagina-inicio footer p{margin:0 0 8px; max-width:60ch}
+.pagina-inicio footer a{color:var(--ink); font-weight:600; text-decoration-color:var(--pen); text-underline-offset:3px}
+.pagina-inicio footer a:hover{color:var(--pen)}
+.pagina-inicio footer a:focus-visible{outline:3px solid var(--pen); outline-offset:2px}
+.pagina-inicio footer code{font-size:.92em; background:var(--card); border:1px solid var(--line); border-radius:6px; padding:0 5px}
+@media (max-width:480px){ .pagina-inicio .tema, .pagina-inicio ul{margin-left:0} }
