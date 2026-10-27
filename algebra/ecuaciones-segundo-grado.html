@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ecuaciones de segundo grado paso a paso</title>
+<style>
+
+:root{
+  --paper:#fdfdfb; --grid:#dbe7f3; --ink:#1f3a68; --soft:#5a6b85;
+  --pen:#c8323a; --ok:#1f8a4c; --hl:#fff3a8; --card:#ffffffd9; --line:#b9cbe0;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#141a24; --grid:#1f2a3a; --ink:#dbe6f7; --soft:#93a3bb;
+    --pen:#ff7a80; --ok:#5fd394; --hl:#4a4320; --card:#182131e6; --line:#2f3f57;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#141a24; --grid:#1f2a3a; --ink:#dbe6f7; --soft:#93a3bb;
+  --pen:#ff7a80; --ok:#5fd394; --hl:#4a4320; --card:#182131e6; --line:#2f3f57;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; color:var(--ink); background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px, transparent 1px),linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:24px 24px;
+  font-family:"Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size:1.05rem; line-height:1.55; font-variant-numeric:tabular-nums;
+}
+main{max-width:720px; margin:0 auto; padding:24px 18px 64px}
+.volver{display:inline-block; color:var(--ink); font-weight:600; text-decoration:none; padding:6px 0; border-bottom:2px solid var(--line)}
+.volver:hover{border-bottom-color:var(--pen)}
+.volver:focus-visible{outline:3px solid var(--pen); outline-offset:3px}
+h1{font-family:Georgia,"Times New Roman",serif; font-size:clamp(1.9rem,6vw,2.6rem); line-height:1.1; margin:14px 0 6px; font-weight:700}
+.sub{color:var(--soft); margin:0 0 22px}
+.panel{background:var(--card); border:2px solid var(--ink); border-radius:14px; padding:14px 16px}
+.panel label{display:block; font-weight:600; margin-bottom:6px}
+.entrada{display:flex; gap:10px; flex-wrap:wrap}
+.entrada input{
+  flex:1 1 220px; min-width:0; font-family:Georgia,serif; font-size:1.6rem; color:var(--ink);
+  background:var(--paper); border:2px solid var(--ink); border-radius:10px; padding:6px 12px;
+}
+.entrada input:focus-visible{outline:3px solid var(--pen); outline-offset:2px}
+button{font:inherit; font-weight:600; cursor:pointer; border-radius:10px; border:2px solid var(--ink); background:var(--ink); color:var(--paper); padding:10px 18px}
+button:focus-visible{outline:3px solid var(--pen); outline-offset:2px}
+.ayuda{color:var(--soft); font-size:.92rem; margin:8px 0 0}
+.ejemplos{margin:12px 0 0; display:flex; gap:8px; flex-wrap:wrap; align-items:center; color:var(--soft); font-size:.95rem}
+.ejemplos button{background:transparent; color:var(--ink); padding:4px 12px; font-weight:500; border-width:1.5px; font-family:Georgia,serif}
+.error{color:var(--pen); font-weight:600; margin-top:16px}
+ol.pasos{list-style:none; padding:0; margin:28px 0 0; counter-reset:paso}
+ol.pasos > li{counter-increment:paso; position:relative; background:var(--card); border-left:4px solid var(--ink); border-radius:0 12px 12px 0; padding:14px 16px 14px 56px; margin-bottom:16px}
+ol.pasos > li::before{content:counter(paso); position:absolute; left:14px; top:12px; width:30px; height:30px; border-radius:50%; border:2px solid var(--pen); color:var(--pen); display:grid; place-items:center; font-weight:700; font-family:Georgia,serif}
+ol.pasos h2{font-size:1.1rem; margin:2px 0 6px}
+ol.pasos p{margin:6px 0}
+.pista{color:var(--soft); font-size:.95rem}
+.ec{font-family:Georgia,serif; font-size:1.35rem; background:var(--hl); display:inline-block; padding:4px 12px; border-radius:6px; margin:6px 0; max-width:100%; overflow-x:auto; white-space:nowrap}
+.ec .igual{margin:0 .35em}
+.ec i{font-style:italic}
+.rojo{color:var(--pen); font-weight:700}
+.frac{display:inline-flex; flex-direction:column; vertical-align:middle; text-align:center; font-size:.82em; line-height:1.1; margin:0 .12em}
+.frac > span:first-child{border-bottom:1.5px solid currentColor; padding:0 .2em}
+.ec .frac{font-size:.95em}
+.flecha{color:var(--soft); margin:2px 0 0 4px}
+.resultado{margin-top:8px; border:2px solid var(--ok); border-radius:14px; padding:16px; background:var(--card)}
+.resultado .grande{font-family:Georgia,serif; font-size:2.2rem; font-weight:700; color:var(--ok)}
+.resultado.otro{border-color:var(--pen)}
+.resultado.otro .grande{color:var(--pen); font-size:1.6rem}
+@media (prefers-reduced-motion:no-preference){
+  ol.pasos > li{animation:aparece .35s ease both}
+  @keyframes aparece{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+}
+
+.metodo{margin-top:14px; padding-top:12px; border-top:1px dashed var(--line)}
+select{font:inherit; width:100%; color:var(--ink); background:var(--paper); border:2px solid var(--ink); border-radius:10px; padding:8px 10px}
+select:focus-visible{outline:3px solid var(--pen); outline-offset:2px}
+.desc{color:var(--soft); font-size:.95rem; margin:8px 0 0}
+.rad{border-top:1.5px solid currentColor; padding:0 .12em}
+.abc{display:flex; gap:10px; flex-wrap:wrap; margin:6px 0}
+.abc span{font-family:Georgia,serif; font-size:1.2rem; background:var(--hl); border-radius:6px; padding:2px 10px}
+.tabla{overflow-x:auto; margin-top:8px}
+table{border-collapse:collapse; font-size:.98rem}
+th,td{padding:6px 12px; text-align:center; border-bottom:1px solid var(--line); white-space:nowrap}
+th{color:var(--soft); font-weight:600}
+tr.si td{color:var(--ok); font-weight:700}
+.boton-metodo{background:transparent; color:var(--ink); padding:6px 14px; margin-top:6px}
+ol.pasos > li.aviso{border-left-color:var(--pen)}
+.resultado .linea{font-family:Georgia,serif; font-size:2rem; font-weight:700; color:var(--ok); line-height:1.4}
+.grafica{margin:10px 0 4px; overflow-x:auto}
+.grafica svg{display:block; width:100%; max-width:560px; min-width:280px; height:auto; background:var(--paper); border:1px solid var(--line); border-radius:10px}
+.g-red{stroke:var(--line); stroke-width:1}
+.g-eje{stroke:var(--ink); stroke-width:1.6}
+.g-num{fill:var(--soft); font-size:11px; font-family:system-ui, sans-serif}
+.g-c1{fill:none; stroke:var(--ink); stroke-width:2.6}
+.g-c2{fill:none; stroke:var(--ok); stroke-width:2.6; stroke-dasharray:9 6}
+.g-pt{fill:var(--pen); stroke:var(--paper); stroke-width:2}
+.g-pt2{fill:var(--paper); stroke:var(--ink); stroke-width:2}
+.g-txt{fill:var(--pen); font-size:13px; font-weight:700; font-family:system-ui, sans-serif; paint-order:stroke; stroke:var(--paper); stroke-width:4px}
+.g-txt2{fill:var(--ink); font-size:12px; font-family:system-ui, sans-serif; paint-order:stroke; stroke:var(--paper); stroke-width:4px}
+.leyenda{display:flex; flex-direction:column; gap:4px; margin:6px 0; font-size:.95rem}
+.leyenda span.l{display:inline-block; width:28px; height:0; vertical-align:middle; margin-right:8px; border-top:3px solid var(--ink)}
+.leyenda span.l2{border-top:3px dashed var(--ok)}
+
+</style>
+</head>
+<body>
+<main>
+  <a class="volver" href="../index.html">← Volver al menú</a>
+  <h1>Ecuaciones de segundo grado paso a paso</h1>
+  <p class="sub">Escribe una ecuación con <i>x</i>², elige un método y mira cómo se encuentran sus soluciones.</p>
+
+  <div class="panel">
+    <label for="ec">Tu ecuación</label>
+    <div class="entrada">
+      <input id="ec" value="x^2 - 5x + 6 = 0" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button id="resolver">Resolver</button>
+    </div>
+    <p class="ayuda">Escribe el cuadrado como x^2 o x². Puedes usar paréntesis, fracciones y decimales.</p>
+    <div class="metodo">
+      <label for="metodo">Método</label>
+      <select id="metodo">
+        <option value="formula" selected>Fórmula general</option>
+        <option value="factorizacion">Factorización</option>
+        <option value="completar">Completar el cuadrado</option>
+      </select>
+      <p class="desc" id="desc"></p>
+    </div>
+  </div>
+  <div class="ejemplos">Prueba con:
+    <button>x^2 - 5x + 6 = 0</button><button>x^2 = 9</button><button>2x^2 + 3x - 2 = 0</button><button>x^2 + 4x = 0</button><button>x^2 - 6x + 9 = 0</button><button>x^2 - 2x - 1 = 0</button><button>x^2 + 2x + 5 = 0</button><button>x(x - 3) = 10</button><button>(x + 1)^2 = 4x + 1</button>
+  </div>
+
+  <div id="salida" aria-live="polite"></div>
+</main>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const DESC = {
+    formula: 'Funciona con cualquier ecuación de segundo grado: solo sustituyes a, b y c en una fórmula.',
+    factorizacion: 'Escribes la ecuación como una multiplicación igual a cero. Es rápido, pero solo funciona cuando las soluciones son números “bonitos”.',
+    completar: 'Acomodas la ecuación para formar un binomio al cuadrado y luego sacas raíz. De aquí sale la fórmula general.'
+  };
+
+  // ---------- fracciones exactas ----------
+  const gcd = (a, b) => { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) [a, b] = [b, a % b]; return a; };
+  const lcm = (a, b) => a / gcd(a, b) * b;
+  const absB = a => a < 0n ? -a : a;
+  class Q {
+    constructor(n, d = 1n){ if (d < 0n){ n = -n; d = -d; } const g = gcd(n, d) || 1n; this.n = n / g; this.d = d / g; }
+    add(o){ return new Q(this.n*o.d + o.n*this.d, this.d*o.d); }
+    sub(o){ return new Q(this.n*o.d - o.n*this.d, this.d*o.d); }
+    mul(o){ return new Q(this.n*o.n, this.d*o.d); }
+    div(o){ return new Q(this.n*o.d, this.d*o.n); }
+    neg(){ return new Q(-this.n, this.d); }
+    abs(){ return new Q(absB(this.n), this.d); }
+    zero(){ return this.n === 0n; }
+    one(){ return this.n === 1n && this.d === 1n; }
+    eq(o){ return this.n === o.n && this.d === o.d; }
+    num(){ return Number(this.n) / Number(this.d); }
+  }
+  const Q0 = new Q(0n), Q1 = new Q(1n), q = n => new Q(BigInt(n));
+  const numQ = s => { const [i, f = ''] = s.split('.'); return new Q(BigInt((i || '0') + f), 10n ** BigInt(f.length)); };
+
+  class Fallo extends Error {}
+  const fallo = m => new Fallo(m);
+
+  // ---------- polinomios hasta grado 2: [c0, c1, c2] ----------
+  const pAdd = (u, v) => u.map((c, i) => c.add(v[i]));
+  const pSub = (u, v) => u.map((c, i) => c.sub(v[i]));
+  const pNeg = u => u.map(c => c.neg());
+  const pEsc = (u, k) => u.map(c => c.mul(k));
+  const grado = u => u[2].zero() ? (u[1].zero() ? 0 : 1) : 2;
+  const pEval = (u, x) => u[2].mul(x).mul(x).add(u[1].mul(x)).add(u[0]);
+  function pMul(u, v){
+    const r = [Q0, Q0, Q0];
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++){
+      if (u[i].zero() || v[j].zero()) continue;
+      if (i + j > 2) throw fallo('Al multiplicar aparece x³ o una potencia mayor. Esta herramienta resuelve ecuaciones de segundo grado (hasta x²).');
+      r[i+j] = r[i+j].add(u[i].mul(v[j]));
+    }
+    return r;
+  }
+  function pDiv(u, v){
+    if (!v[1].zero() || !v[2].zero()) throw fallo('La incógnita quedó en el denominador (dividiendo). Esta herramienta solo resuelve ecuaciones donde la incógnita está arriba.');
+    if (v[0].zero()) throw fallo('Hay una división entre cero, y eso no se puede hacer.');
+    return u.map(c => c.div(v[0]));
+  }
+
+  // ---------- lectura ----------
+  const normalizar = s => s.replace(/[−–—]/g, '-').replace(/[×·]/g, '*').replace(/÷/g, '/').replace(/\s+/g, '');
+  function tokens(s){
+    const t = []; let i = 0;
+    while (i < s.length){
+      const c = s[i];
+      if (/[0-9.,]/.test(c)){
+        let j = i; while (j < s.length && /[0-9.,]/.test(s[j])) j++;
+        const raw = s.slice(i, j), v = raw.replace(',', '.');
+        if (/[.,].*[.,]/.test(raw) || v === '.') throw fallo(`Revisa el número “${raw}”: usa una sola coma o punto para los decimales.`);
+        t.push({t:'num', v:numQ(v), dec:v.includes('.')}); i = j; continue;
+      }
+      if (/[a-zA-ZñÑ]/.test(c)){ t.push({t:'var', v:c.toLowerCase()}); i++; continue; }
+      if (c === '²'){ t.push({t:'^'}, {t:'num', v:q(2)}); i++; continue; }
+      if (c === '³'){ t.push({t:'^'}, {t:'num', v:q(3)}); i++; continue; }
+      if ('+-*/()=^'.includes(c)){ t.push({t:c}); i++; continue; }
+      throw fallo(`No reconozco el símbolo “${c}”.`);
+    }
+    return t;
+  }
+  function leerLado(t){
+    let p = 0;
+    const ver = () => t[p], tomar = () => t[p++];
+    function expr(){
+      let v = termino();
+      while (ver() && (ver().t === '+' || ver().t === '-')){
+        const op = tomar().t, r = termino();
+        v = op === '+' ? pAdd(v, r) : pSub(v, r);
+      }
+      return v;
+    }
+    function termino(){
+      let v = unario();
+      for (;;){
+        const k = ver(); if (!k) break;
+        if (k.t === '*'){ tomar(); v = pMul(v, unario()); }
+        else if (k.t === '/'){ tomar(); v = pDiv(v, unario()); }
+        else if (k.t === 'num' || k.t === 'var' || k.t === '('){ v = pMul(v, unario()); }
+        else break;
+      }
+      return v;
+    }
+    function unario(){
+      const k = ver();
+      if (k && k.t === '-'){ tomar(); return pNeg(unario()); }
+      if (k && k.t === '+'){ tomar(); return unario(); }
+      return potencia();
+    }
+    function potencia(){
+      let v = primario();
+      while (ver() && ver().t === '^'){
+        tomar();
+        const e = tomar();
+        if (!e || e.t !== 'num' || e.v.d !== 1n || e.v.n > 10n) throw fallo('Después de ^ escribe un número entero, por ejemplo x^2.');
+        let r = [Q1, Q0, Q0];
+        for (let k = 0n; k < e.v.n; k++) r = pMul(r, v);
+        v = r;
+      }
+      return v;
+    }
+    function primario(){
+      const k = tomar();
+      if (!k) throw fallo('A la ecuación le falta algo: revisa que no termine en un signo.');
+      if (k.t === 'num') return [k.v, Q0, Q0];
+      if (k.t === 'var') return [Q0, Q1, Q0];
+      if (k.t === '('){
+        const v = expr();
+        if (!ver() || ver().t !== ')') throw fallo('Falta cerrar un paréntesis.');
+        tomar(); return v;
+      }
+      throw fallo(k.t === ')' ? 'Hay un paréntesis que se cierra sin haberse abierto.' : `Hay un signo “${k.t}” fuera de lugar.`);
+    }
+    if (!t.length) throw fallo('Uno de los lados de la ecuación está vacío.');
+    const v = expr();
+    if (p < t.length) throw fallo(t[p].t === ')' ? 'Sobra un paréntesis de cierre.' : 'Revisa cómo está escrita la ecuación.');
+    return v;
+  }
+
+  // ---------- cómo se ven las cosas ----------
+  let X = 'x';
+  const xH = () => `<i>${X}</i>`;
+  const qHTML = v => v.d === 1n ? absB(v.n).toString() : `<span class="frac"><span>${absB(v.n)}</span><span>${v.d}</span></span>`;
+  const qF = v => (v.n < 0n ? '−' : '') + qHTML(v);
+  const qP = v => v.n < 0n ? `(${qF(v)})` : qF(v);
+  const qTexto = v => (v.n < 0n ? '−' : '') + (v.d === 1n ? absB(v.n) : `${absB(v.n)}/${v.d}`);
+  const bF = n => (n < 0n ? '−' : '') + absB(n);
+  const frac = (arriba, abajo) => `<span class="frac"><span>${arriba}</span><span>${abajo}</span></span>`;
+  const rad = m => `√<span class="rad">${m}</span>`;
+  function terminos(lista){
+    const it = lista.filter(t => !t.q.zero());
+    if (!it.length) return '0';
+    return it.map((t, i) => {
+      const neg = t.q.n < 0n, ab = t.q.abs();
+      const lit = t.g === 2 ? `${xH()}²` : t.g === 1 ? xH() : '';
+      const cuerpo = t.g ? (ab.one() ? '' : qHTML(ab)) + lit : qHTML(ab);
+      const s = (i === 0 ? (neg ? '−' : '') : (neg ? ' − ' : ' + ')) + cuerpo;
+      return t.hl ? `<span class="rojo">${s}</span>` : s;
+    }).join('');
+  }
+  const lado = (u, extra = []) => terminos([{q:u[2], g:2}, {q:u[1], g:1}, {q:u[0], g:0}, ...extra]);
+  const ec = (i, d) => `<div class="ec">${i}<span class="igual">=</span>${d}</div>`;
+  const bonito = s => s.replace(/\^2/g, '²').replace(/\*/g, ' × ').replace(/-/g, ' − ').replace(/\+/g, ' + ').replace(/=/g, ' = ').replace(/\s+/g, ' ').replace(/\( /g, '(').replace(/^ − /, '−').replace(/= − /, '= −').replace(/\(\s*−\s*/g, '(−').trim();
+  const paso = (t, c, clase = '') => `<li${clase ? ` class="${clase}"` : ''}><h2>${t}</h2>${c}</li>`;
+  const dec = n => ((Math.round(n * 1e4) / 1e4) || 0).toLocaleString('es-ES', {maximumFractionDigits:4, useGrouping:false}).replace('-', '−');
+  const lin = (p, c) => `(${terminos([{q:new Q(p), g:1}, {q:new Q(c), g:0}])})`;
+
+  // raíz de un racional: √k = s·√m con m sin cuadrados
+  function raizQ(k){
+    let N = k.n * k.d, f = 1n, m = N;
+    if (N === 0n) return {s: Q0, m: 1n};
+    for (let i = 2n; i * i <= m; i++) while (m % (i*i) === 0n){ m /= i*i; f *= i; }
+    return {s: new Q(f, k.d), m};
+  }
+  // (P ± S√m)/T con enteros, simplificado
+  function formaRad(P, S, m, T){
+    const g = gcd(gcd(P, S), T) || 1n;
+    P /= g; S /= g; T /= g;
+    const sq = (S === 1n ? '' : S.toString()) + rad(m);
+    const arm = sg => P === 0n ? (sg === '+' ? '' : sg) + sq : `${bF(P)} ${sg} ${sq}`;
+    const ver = sg => T === 1n ? arm(sg) : frac(arm(sg), T);
+    const val = sg => (Number(P) + (sg === '+' ? 1 : -1) * Number(S) * Math.sqrt(Number(m))) / Number(T);
+    return {g, pm: ver('±'), x1: ver('+'), x2: ver('−'), v1: val('+'), v2: val('−')};
+  }
+  // Raíces exactas como {html, v, q?}
+  function raicesDe(A, B, C){
+    const D = B*B - 4n*A*C;
+    if (D < 0n) return [];
+    const r = raizQ(q(D));
+    if (r.m === 1n){
+      const s = r.s.n;
+      const x1 = new Q(-B + s, 2n*A), x2 = new Q(-B - s, 2n*A);
+      const xs = [x1, x2].sort((u, w) => u.num() - w.num());
+      if (D === 0n) return [{html:qF(x1), v:x1.num(), q:x1}];
+      return xs.map(x => ({html:qF(x), v:x.num(), q:x}));
+    }
+    const f = formaRad(-B, r.s.n, r.m, 2n*A);
+    return [{html:f.x2, v:f.v2}, {html:f.x1, v:f.v1}].sort((u, w) => u.v - w.v);
+  }
+
+  // ---------- gráfica (SVG sin librerías) ----------
+  let idGraf = 0;
+  const fmtG = v => { const r = Math.round(v * 1e6) / 1e6; return (Object.is(r, -0) ? 0 : r).toLocaleString('es-ES', {maximumFractionDigits:2, useGrouping:false}).replace('-', '−'); };
+  function paso10(span){
+    const raw = span / 6, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p;
+  }
+  function grafica({xmin, xmax, ymin, ymax, curvas = [], puntos = [], titulo = 'Gráfica'}){
+    const W = 400, H = 300, ml = 40, mr = 12, mt = 12, mb = 28;
+    const sx = x => ml + (x - xmin) / (xmax - xmin) * (W - ml - mr);
+    const sy = y => mt + (ymax - y) / (ymax - ymin) * (H - mt - mb);
+    const id = 'clip' + (++idGraf);
+    let g = '';
+    const dx = paso10(xmax - xmin), dy = paso10(ymax - ymin);
+    for (let x = Math.ceil(xmin / dx) * dx; x <= xmax + 1e-9; x += dx){
+      const X = sx(x).toFixed(1);
+      g += `<line x1="${X}" y1="${mt}" x2="${X}" y2="${H - mb}" class="g-red"/><text x="${X}" y="${H - mb + 16}" text-anchor="middle" class="g-num">${fmtG(x)}</text>`;
+    }
+    for (let y = Math.ceil(ymin / dy) * dy; y <= ymax + 1e-9; y += dy){
+      const Y = sy(y).toFixed(1);
+      g += `<line x1="${ml}" y1="${Y}" x2="${W - mr}" y2="${Y}" class="g-red"/><text x="${ml - 5}" y="${(+Y + 4).toFixed(1)}" text-anchor="end" class="g-num">${fmtG(y)}</text>`;
+    }
+    if (xmin <= 0 && xmax >= 0) g += `<line x1="${sx(0).toFixed(1)}" y1="${mt}" x2="${sx(0).toFixed(1)}" y2="${H - mb}" class="g-eje"/>`;
+    if (ymin <= 0 && ymax >= 0) g += `<line x1="${ml}" y1="${sy(0).toFixed(1)}" x2="${W - mr}" y2="${sy(0).toFixed(1)}" class="g-eje"/>`;
+    let c = '';
+    curvas.forEach(cv => {
+      const pts = [];
+      for (let i = 0; i <= 240; i++){
+        const x = xmin + (xmax - xmin) * i / 240, y = cv.f(x);
+        const Y = Math.max(-2000, Math.min(2000, sy(y)));
+        pts.push(`${sx(x).toFixed(1)},${Y.toFixed(1)}`);
+      }
+      c += `<polyline points="${pts.join(' ')}" class="${cv.clase || 'g-c1'}"/>`;
+    });
+    let p = '';
+    puntos.forEach(pt => {
+      const X = sx(pt.x), Y = sy(pt.y);
+      p += `<circle cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" r="6" class="${pt.clase || 'g-pt'}"/>`;
+      if (pt.texto){
+        const izq = pt.izq ?? (X > W * 0.62), abajo = pt.dy ?? (pt.abajo ? 20 : -10);
+        p += `<text x="${(X + (izq ? -9 : 9)).toFixed(1)}" y="${Math.max(mt + 12, Math.min(H - mb - 4, Y + abajo)).toFixed(1)}" text-anchor="${izq ? 'end' : 'start'}" class="${pt.claseTxt || 'g-txt'}">${pt.texto}</text>`;
+      }
+    });
+    return `<div class="grafica"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${titulo}">
+      <defs><clipPath id="${id}"><rect x="${ml}" y="${mt}" width="${W - ml - mr}" height="${H - mt - mb}"/></clipPath></defs>
+      ${g}<g clip-path="url(#${id})">${c}</g>${p}</svg></div>`;
+  }
+  function rangoY(valores, incluirCero){
+    let lo = Math.min(...valores), hi = Math.max(...valores);
+    if (incluirCero){ lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+    if (hi - lo < 1e-9){ lo -= 2; hi += 2; }
+    const pad = (hi - lo) * 0.1;
+    return [lo - pad, hi + pad];
+  }
+
+
+  // ---------- métodos ----------
+  function metodoFormula(A, B, C){
+    const D = B*B - 4n*A*C;
+    let h = '';
+    h += paso('Escribe la fórmula general',
+      `<p>Esta fórmula sirve para cualquier ecuación de la forma a${xH()}² + b${xH()} + c = 0:</p>
+       ${ec(xH(), frac(`−b ± ${rad('b² − 4ac')}`, '2a'))}
+       <p class="pista">El “±” significa que hay que hacer la cuenta dos veces: una sumando (+) y otra restando (−). Por eso puede haber dos soluciones.</p>`);
+    h += paso('Sustituye a, b y c',
+      `<p>Ponemos cada número en su lugar, entre paréntesis para no perder los signos:</p>
+       ${ec(xH(), frac(`−${pp(B)} ± ${rad(`${pp(B)}² − 4${pp(A)}${pp(C)}`)}`, `2${pp(A)}`))}
+       ${B < 0n ? `<p class="pista">Ojo: −b es el contrario de b. Como b = ${bF(B)}, entonces −b = ${bF(-B)}.</p>` : ''}`);
+    const tipo = D > 0n ? `Es positivo, así que hay <strong>dos soluciones</strong>.` : D === 0n ? `Es cero, así que hay <strong>una sola solución</strong> (las dos cuentas dan lo mismo).` : `Es negativo, y no existe ningún número que multiplicado por sí mismo dé negativo. Por eso <strong>no hay solución</strong> con números reales.`;
+    h += paso('Calcula lo que va dentro de la raíz',
+      `<p>Primero resolvemos lo de adentro de la raíz, con cuidado en el orden: primero potencias y multiplicaciones, al final la resta.</p>
+       <div class="ec">${pp(B)}² − 4${pp(A)}${pp(C)} = ${bF(B*B)} − ${bP(4n*A*C)} = ${bF(D)}</div>
+       <p>Este número se llama <strong>discriminante</strong>, porque nos dice cuántas soluciones hay. ${tipo}</p>`);
+    if (D < 0n) return {h, raices: []};
+    const r = raizQ(q(D));
+    if (r.m === 1n){
+      const s = r.s.n, den = 2n*A;
+      if (D === 0n){
+        const x = new Q(-B, den);
+        h += paso('Termina la cuenta',
+          `<p>Como √0 = 0, sumar o restar da lo mismo:</p>
+           ${ec(xH(), frac(`${bF(-B)} ± 0`, den) + ` = ${qF(x)}`)}`);
+        return {h, raices: [{html:qF(x), v:x.num(), q:x}]};
+      }
+      const x1 = new Q(-B + s, den), x2 = new Q(-B - s, den);
+      h += paso('Saca la raíz y haz las dos cuentas',
+        `<p>${rad(D)} = ${s}, porque ${s} × ${s} = ${D}. Ahora la fórmula queda:</p>
+         ${ec(xH(), frac(`${bF(-B)} ± ${s}`, den))}
+         <p>Con <strong>+</strong>: <span class="ec">${xH()}₁ = ${frac(`${bF(-B)} + ${s}`, den)} = ${frac(bF(-B + s), den)} = ${qF(x1)}</span></p>
+         <p>Con <strong>−</strong>: <span class="ec">${xH()}₂ = ${frac(`${bF(-B)} − ${s}`, den)} = ${frac(bF(-B - s), den)} = ${qF(x2)}</span></p>`);
+      return {h, raices: [x1, x2].map(x => ({html:qF(x), v:x.num(), q:x}))};
+    }
+    const f = formaRad(-B, r.s.n, r.m, 2n*A);
+    let simp = '';
+    if (r.s.n > 1n) simp = `<p>${rad(D)} no es exacta, pero se puede simplificar: ${D} = ${r.s.n*r.s.n} × ${r.m}, y ${rad(r.s.n*r.s.n)} = ${r.s.n}. Entonces ${rad(D)} = ${r.s.n}${rad(r.m)}.</p>`;
+    else simp = `<p>${rad(D)} no es exacta y no se puede simplificar, así que la dejamos indicada.</p>`;
+    h += paso('Saca la raíz',
+      `${simp}${ec(xH(), frac(`${bF(-B)} ± ${r.s.n === 1n ? '' : r.s.n}${rad(r.m)}`, 2n*A))}
+       ${f.g > 1n ? `<p>Todos los números se pueden dividir entre ${f.g}, así que simplificamos:</p>${ec(xH(), f.pm)}` : ''}`);
+    h += paso('Haz las dos cuentas',
+      `<p>Con <strong>+</strong>: <span class="ec">${xH()}₁ = ${f.x1} ≈ ${dec(f.v1)}</span></p>
+       <p>Con <strong>−</strong>: <span class="ec">${xH()}₂ = ${f.x2} ≈ ${dec(f.v2)}</span></p>
+       <p class="pista">La forma con raíz es el resultado exacto. El decimal es una aproximación, útil para ubicarlo en la gráfica.</p>`);
+    return {h, raices: [{html:f.x1, v:f.v1}, {html:f.x2, v:f.v2}]};
+  }
+
+  function pasoProductoCero(factores){
+    // factores: [{p, c}] cada uno p·x + c (BigInt)
+    let filas = '';
+    const raices = [];
+    factores.forEach(({p, c}) => {
+      const x = new Q(-c, p);
+      let cuenta;
+      if (p === 1n) cuenta = c === 0n ? `${xH()} = 0` : `${lin(p, c).slice(1, -1)} = 0 &nbsp;→&nbsp; ${xH()} = ${qF(x)}`;
+      else cuenta = `${lin(p, c).slice(1, -1)} = 0 &nbsp;→&nbsp; ${bF(p)}${xH()} = ${bF(-c)} &nbsp;→&nbsp; ${xH()} = ${qF(x)}`;
+      filas += `<p><span class="ec">${cuenta}</span></p>`;
+      if (!raices.some(r => r.q.eq(x))) raices.push({html:qF(x), v:x.num(), q:x});
+    });
+    const h = paso('Iguala cada factor a cero',
+      `<p>Si dos números multiplicados dan 0, entonces <strong>al menos uno de ellos es 0</strong>. Así que igualamos cada paréntesis a cero y resolvemos:</p>${filas}
+       ${raices.length === 1 ? '<p class="pista">Los dos factores son iguales, así que solo hay una solución.</p>' : ''}`);
+    return {h, raices};
+  }
+
+  function metodoFactorizacion(A, B, C){
+    const D = B*B - 4n*A*C;
+    const r = D >= 0n ? raizQ(q(D)) : null;
+    if (!r || r.m !== 1n){
+      const h = paso('Esta ecuación no se puede factorizar fácil',
+        `<p>${D < 0n ? 'Esta ecuación no tiene soluciones con números reales, así que no hay forma de escribirla como multiplicación.' : 'Sus soluciones no son números enteros ni fracciones (tienen raíces que no son exactas), así que no hay números “bonitos” para factorizar.'}</p>
+         <p>Usa la fórmula general, que funciona siempre:</p>
+         <button class="boton-metodo" data-metodo="formula">Resolver con la fórmula general</button>`, 'aviso');
+      return {h, raices: null};
+    }
+    let h = '';
+    if (C === 0n){
+      h += paso('Saca la x como factor común',
+        `<p>No hay número solo (c = 0), así que los dos términos tienen ${xH()}. La “sacamos” de los dos:</p>
+         ${ec(lado([Q0, q(B), q(A)]), '0')}
+         ${ec(`${xH()}${lin(A, B)}`, '0')}
+         <p class="pista">Comprueba multiplicando: ${xH()} por cada término de adentro te regresa a la ecuación de arriba.</p>`);
+      const pc = pasoProductoCero([{p:1n, c:0n}, {p:A, c:B}]);
+      return {h: h + pc.h, raices: pc.raices};
+    }
+    const N = A*C;
+    // pares de números que multiplicados dan N
+    const pares = [];
+    const absN = absB(N);
+    for (let d = 1n; d*d <= absN; d++){
+      if (absN % d) continue;
+      const e = absN / d;
+      if (N > 0n){ const s = B < 0n ? -1n : 1n; pares.push([s*d, s*e]); }
+      else { pares.push([d, -e]); if (d !== e) pares.push([-d, e]); }
+    }
+    const idx = pares.findIndex(([m, n]) => m + n === B);
+    const [m, n] = pares[idx];
+    let lista = pares.map((pr, i) => ({pr, i}));
+    if (lista.length > 10) lista = lista.filter(({i}) => i < 6 || i === idx);
+    const filas = lista.map(({pr:[u, v], i}) => `<tr class="${i === idx ? 'si' : ''}"><td>${bF(u)} y ${bF(v)}</td><td>${bF(u)} × ${bP(v)} = ${bF(u*v)}</td><td>${bF(u)} + ${bP(v)} = ${bF(u+v)}</td><td>${i === idx ? '✓' : ''}</td></tr>`).join('');
+    if (A === 1n){
+      h += paso('Busca dos números',
+        `<p>Buscamos dos números que <strong>multiplicados den ${bF(C)}</strong> (el valor de c) y <strong>sumados den ${bF(B)}</strong> (el valor de b).</p>
+         <div class="tabla"><table><thead><tr><th>Números</th><th>Multiplicados</th><th>Sumados</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>
+         <p>Los números son <strong>${bF(m)} y ${bF(n)}</strong>.</p>
+         ${C < 0n ? '<p class="pista">Como c es negativo, los dos números tienen signos distintos (uno positivo y uno negativo).</p>' : B < 0n ? '<p class="pista">Como c es positivo y b negativo, los dos números son negativos.</p>' : ''}`);
+      h += paso('Escribe la ecuación como multiplicación',
+        `<p>Cada número va en un paréntesis junto a la ${xH()}:</p>
+         ${ec(`${lin(1n, m)}${lin(1n, n)}`, '0')}
+         <p class="pista">Compruébalo multiplicando los paréntesis: ${xH()} × ${xH()} = ${xH()}², y ${bF(m)} × ${bP(n)} = ${bF(C)}.</p>`);
+      const pc = pasoProductoCero([{p:1n, c:m}, {p:1n, c:n}]);
+      return {h: h + pc.h, raices: pc.raices};
+    }
+    // a ≠ 1: método de agrupación (a·c)
+    h += paso('Busca dos números',
+      `<p>Como a = ${bF(A)} no es 1, multiplicamos a × c = ${bF(A)} × ${bP(C)} = <strong>${bF(N)}</strong>. Buscamos dos números que <strong>multiplicados den ${bF(N)}</strong> y <strong>sumados den ${bF(B)}</strong> (el valor de b):</p>
+       <div class="tabla"><table><thead><tr><th>Números</th><th>Multiplicados</th><th>Sumados</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>
+       <p>Los números son <strong>${bF(m)} y ${bF(n)}</strong>.</p>`);
+    const g1 = gcd(A, m), p = A / g1, qq = m / g1, g2 = n / p;
+    h += paso('Separa el término del medio',
+      `<p>Escribimos ${terminos([{q:q(B), g:1}])} como ${terminos([{q:q(m), g:1}, {q:q(n), g:1}])} (es lo mismo, porque ${bF(m)} + ${bP(n)} = ${bF(B)}):</p>
+       ${ec(terminos([{q:q(A), g:2}, {q:q(m), g:1}, {q:q(n), g:1}, {q:q(C), g:0}]), '0')}`);
+    h += paso('Agrupa de dos en dos',
+      `<p>De los dos primeros términos sacamos lo que se repite (${g1 === 1n ? '' : g1}${xH()}), y de los dos últimos también (${bF(g2)}):</p>
+       ${ec(`${g1 === 1n ? '' : g1}${xH()}${lin(p, qq)} ${g2 < 0n ? '−' : '+'} ${absB(g2)}${lin(p, qq)}`, '0')}
+       <p>Ahora el paréntesis ${lin(p, qq)} se repite, así que lo sacamos como factor común:</p>
+       ${ec(`${lin(p, qq)}${lin(g1, g2)}`, '0')}`);
+    const pc = pasoProductoCero([{p, c:qq}, {p:g1, c:g2}]);
+    return {h: h + pc.h, raices: pc.raices};
+  }
+
+  function metodoCompletar(A, B, C){
+    let h = '';
+    const a = q(A);
+    let pq = new Q(B, A), cq = new Q(C, A);
+    if (A !== 1n){
+      h += paso('Haz que a valga 1',
+        `<p>Para completar el cuadrado, el número de ${xH()}² debe ser 1. Dividimos <strong>toda</strong> la ecuación entre ${bF(A)}:</p>
+         ${ec(lado([cq, pq, Q1]), '0')}`);
+    }
+    if (!cq.zero()){
+      h += paso('Pasa el número solo al otro lado',
+        `<p>${cq.n < 0n ? 'Sumamos' : 'Restamos'} ${qHTML(cq)} en los dos lados para dejar solo los términos con ${xH()} a la izquierda:</p>
+         ${ec(lado([Q0, pq, Q1]), qF(cq.neg()))}`);
+    }
+    const k0 = cq.neg();
+    if (pq.zero()){
+      h += paso('No hace falta completar', `<p>No hay término con ${xH()} sola (b = 0), así que ya tenemos ${xH()}² igual a un número.</p>`);
+    } else {
+      const mitad = pq.div(q(2)), cuad = mitad.mul(mitad), k = k0.add(cuad);
+      h += paso('Suma el número que completa el cuadrado',
+        `<p>Tomamos el número que acompaña a la ${xH()} (${qF(pq)}), sacamos su mitad (${qF(mitad)}) y la elevamos al cuadrado: ${qP(mitad)}² = ${qF(cuad)}. Ese número lo sumamos en <strong>los dos lados</strong>:</p>
+         ${ec(lado([Q0, pq, Q1], [{q:cuad, g:0, hl:true}]), terminos([{q:k0, g:0}, {q:cuad, g:0, hl:true}]))}
+         <p class="pista">¿Por qué ese número? Porque así la izquierda queda como un binomio al cuadrado: (${xH()} ${mitad.n < 0n ? '−' : '+'} ${qHTML(mitad)})² = ${lado([cuad, pq, Q1])}.</p>`);
+      h += paso('Escribe el binomio al cuadrado',
+        `<p>La izquierda se convierte en un binomio al cuadrado y la derecha se suma:</p>
+         ${ec(`(${xH()} ${mitad.n < 0n ? '−' : '+'} ${qHTML(mitad)})²`, qF(k))}`);
+      const r1 = terminarCompletar(mitad, k);
+      return {h: h + r1.h, raices: r1.raices};
+    }
+    const r2 = terminarCompletar(Q0, k0);
+    return {h: h + r2.h, raices: r2.raices};
+  }
+  function terminarCompletar(mitad, k){
+    const izq = mitad.zero() ? `${xH()}` : `${xH()} ${mitad.n < 0n ? '−' : '+'} ${qHTML(mitad)}`;
+    if (k.n < 0n){
+      return {h: paso('Saca raíz cuadrada en los dos lados',
+        `<p>Algo elevado al cuadrado no puede dar un número negativo (${qF(k)}): cualquier número multiplicado por sí mismo da cero o positivo.</p>
+         <p>Por eso esta ecuación <strong>no tiene solución</strong> con números reales.</p>`), raices: []};
+    }
+    if (k.zero()){
+      const x = mitad.neg();
+      return {h: paso('Saca raíz cuadrada en los dos lados',
+        `<p>La raíz de 0 es 0:</p>${ec(izq, '0')}${ec(xH(), qF(x))}`), raices: [{html:qF(x), v:x.num(), q:x}]};
+    }
+    const r = raizQ(k);
+    const raizK = r.m === 1n ? qF(r.s) : `${r.s.one() ? '' : qHTML(r.s)}${rad(r.m)}`;
+    let h = paso('Saca raíz cuadrada en los dos lados',
+      `<p>Si algo al cuadrado da ${qF(k)}, ese algo puede ser la raíz positiva <strong>o</strong> la negativa (por ejemplo, 3² = 9 y también (−3)² = 9). Por eso escribimos ±:</p>
+       ${ec(izq, `±${k.d === 1n ? rad(k.n) : `√<span class="rad">${qHTML(k)}</span>`}` + (r.m === 1n || !r.s.one() || k.d !== 1n ? ` = ±${raizK}` : ''))}`);
+    const T = lcm(mitad.d, r.s.d);
+    const P = mitad.neg().mul(new Q(T)).n, S = r.s.mul(new Q(T)).n;
+    if (r.m === 1n){
+      const x1 = mitad.neg().add(r.s), x2 = mitad.neg().sub(r.s);
+      h += paso(`Despeja la ${X}`,
+        `<p>${mitad.zero() ? 'La' : `${mitad.n < 0n ? 'Sumamos' : 'Restamos'} ${qHTML(mitad)} en los dos lados y hacemos las dos cuentas. La`} primera con +, la segunda con −:</p>
+         <p><span class="ec">${xH()}₁ = ${mitad.zero() ? '' : qF(mitad.neg()) + ' + '}${qF(r.s)} = ${qF(x1)}</span></p>
+         <p><span class="ec">${xH()}₂ = ${mitad.zero() ? '−' + qF(r.s) : qF(mitad.neg()) + ' − ' + qF(r.s)} = ${qF(x2)}</span></p>`);
+      return {h, raices: [x1, x2].map(x => ({html:qF(x), v:x.num(), q:x}))};
+    }
+    const f = formaRad(P, S, r.m, T);
+    h += paso(`Despeja la ${X}`,
+      `<p>${mitad.zero() ? 'Ya tenemos la x sola' : `${mitad.n < 0n ? 'Sumamos' : 'Restamos'} ${qHTML(mitad)} en los dos lados`}:</p>
+       ${ec(xH(), f.pm)}
+       <p>Con <strong>+</strong>: <span class="ec">${xH()}₁ = ${f.x1} ≈ ${dec(f.v1)}</span></p>
+       <p>Con <strong>−</strong>: <span class="ec">${xH()}₂ = ${f.x2} ≈ ${dec(f.v2)}</span></p>`);
+    return {h, raices: [{html:f.x1, v:f.v1}, {html:f.x2, v:f.v2}]};
+  }
+  const bP = n => n < 0n ? `(${bF(n)})` : bF(n);
+  const pp = n => `(${bF(n)})`;
+
+  // ---------- flujo principal ----------
+  function resolver(){
+    const metodo = $('#metodo').value;
+    $('#desc').textContent = DESC[metodo];
+    const out = $('#salida');
+    try {
+      const s = normalizar($('#ec').value.trim());
+      const t = tokens(s);
+      const letras = [...new Set(t.filter(k => k.t === 'var').map(k => k.v))];
+      if (!letras.length) throw fallo('La ecuación necesita una incógnita, por ejemplo x.');
+      if (letras.length > 1) throw fallo(`Usa una sola letra como incógnita. Encontré varias: ${letras.join(', ')}.`);
+      X = letras[0];
+      const nIg = t.filter(k => k.t === '=').length;
+      if (nIg !== 1) throw fallo(nIg === 0 ? 'Falta el signo = que separa los dos lados de la ecuación.' : 'La ecuación debe tener un solo signo =.');
+      const pos = t.findIndex(k => k.t === '=');
+      const I0 = leerLado(t.slice(0, pos)), D0 = leerLado(t.slice(pos + 1));
+      const P = pSub(I0, D0);
+      if (grado(P) < 2){
+        throw fallo(`Al acomodar la ecuación, la ${X}² se cancela, así que no es de segundo grado. ${grado(P) === 1 ? 'Es de primer grado: resuélvela con la herramienta de <a href="ecuaciones-primer-grado.html">ecuaciones de primer grado</a>.' : 'Ni siquiera queda la incógnita.'}`);
+      }
+      const [izqTxt, derTxt] = s.split('=');
+      out.innerHTML = pasos(s, izqTxt, derTxt, I0, D0, t, metodo);
+    } catch(e){
+      if (e instanceof Fallo){ out.innerHTML = `<p class="error">${e.message}</p>`; return; }
+      throw e;
+    }
+  }
+
+  function pasos(s, izqTxt, derTxt, I0, D0, t, metodo){
+    let h = '<ol class="pasos">';
+    h += paso('Lee la ecuación',
+      `${ec(bonito(izqTxt), bonito(derTxt))}
+       <p>Es de <strong>segundo grado</strong> porque la ${xH()} aparece elevada al cuadrado (${xH()}²). Estas ecuaciones pueden tener <strong>dos soluciones, una o ninguna</strong>.</p>
+       <p>Primero la acomodamos en la forma <strong>a${xH()}² + b${xH()} + c = 0</strong>: todo de un lado, ordenado, y cero del otro.</p>`);
+
+    const plano = u => lado(u).replace(/<[^>]+>/g, '').replace(/\s+/g, '');
+    const original = s.replace(/\^2/g, '²').replace(/-/g, '−');
+    let I = I0, D = D0;
+    if (plano(I) + '=' + plano(D) !== original){
+      let expl = '';
+      if (/\)(\^2|²)/.test(s)) expl += `<p>Un paréntesis al cuadrado significa multiplicarlo por sí mismo. Por ejemplo, (${xH()} + 1)² = (${xH()} + 1)(${xH()} + 1) = ${xH()}² + 2${xH()} + 1.</p>`;
+      if (s.includes('(')) expl += '<p>Para quitar paréntesis, multiplicamos cada término de afuera por cada término de adentro.</p>';
+      if (t.some(k => k.t === 'num' && k.dec)) expl += '<p>Los decimales los escribimos como fracciones para trabajar con números exactos.</p>';
+      expl += `<p>Luego juntamos los términos parecidos de cada lado y los ordenamos: primero ${xH()}², después ${xH()} y al final los números solos.</p>`;
+      h += paso('Ordena cada lado', `${expl}${ec(lado(I), lado(D))}`);
+    }
+    if (!(D[0].zero() && D[1].zero() && D[2].zero())){
+      const extra = [{q:D[2].neg(), g:2, hl:true}, {q:D[1].neg(), g:1, hl:true}, {q:D[0].neg(), g:0, hl:true}];
+      const P = pSub(I, D);
+      h += paso('Deja cero del lado derecho',
+        `<p>Para dejar el lado derecho en cero, restamos todo lo que tiene (con el signo contrario) en <strong>los dos lados</strong>:</p>
+         ${ec(lado(I, extra), lado(D, extra))}
+         <p>A la derecha todo se cancela. A la izquierda juntamos los términos parecidos:</p>${ec(lado(P), '0')}`);
+      I = P; D = [Q0, Q0, Q0];
+    }
+    let m = 1n; I.forEach(c => { m = lcm(m, c.d); });
+    if (m > 1n){
+      I = pEsc(I, q(m));
+      h += paso('Quita las fracciones',
+        `<p>Multiplicamos todo por ${m}, un número que todos los denominadores dividen exacto. Del lado derecho, ${m} × 0 sigue siendo 0:</p>${ec(lado(I), '0')}`);
+    }
+    if (I[2].n < 0n){
+      I = pNeg(I);
+      h += paso('Haz positivo el número de la x²',
+        `<p>No es obligatorio, pero con a positivo hay menos errores de signos. Multiplicamos todo por −1, o sea, cambiamos el signo de cada término:</p>${ec(lado(I), '0')}`);
+    }
+    const A = I[2].n, B = I[1].n, C = I[0].n;
+    h += paso('Identifica a, b y c',
+      `<p>Comparamos con a${xH()}² + b${xH()} + c = 0. Cada número se lleva <strong>su signo</strong>:</p>
+       <div class="abc"><span>a = ${bF(A)}</span><span>b = ${bF(B)}</span><span>c = ${bF(C)}</span></div>
+       ${B === 0n || C === 0n ? `<p class="pista">Si un término no aparece, su número es 0.</p>` : ''}
+       ${A === 1n ? `<p class="pista">Cuando no se ve número junto a ${xH()}², vale 1.</p>` : ''}`);
+
+    const res = metodo === 'formula' ? metodoFormula(A, B, C) : metodo === 'factorizacion' ? metodoFactorizacion(A, B, C) : metodoCompletar(A, B, C);
+    h += res.h;
+    const raices = res.raices === null ? raicesDe(A, B, C) : res.raices;
+
+    // comprobación
+    if (res.raices && res.raices.length){
+      let cp = '';
+      res.raices.forEach((r, i) => {
+        const nombre = res.raices.length > 1 ? `${xH()}${i ? '₂' : '₁'}` : xH();
+        if (r.q){
+          const vi = pEval(I0, r.q), vd = pEval(D0, r.q);
+          const sim = r.q.d === 1n && r.q.n >= 0n;
+          const sust = txt => bonito(txt).replace(new RegExp(X, 'gi'), (mm, j, str) => (sim && !/[0-9)]/.test(str[j - 1] || '')) ? qTexto(r.q) : `(${qTexto(r.q)})`);
+          cp += `<p>Con ${nombre} = ${r.html}:</p>
+            <p><span class="ec">${sust(izqTxt)} = ${qF(vi)}</span> &nbsp; y &nbsp; <span class="ec">${sust(derTxt)} = ${qF(vd)}</span> ${vi.eq(vd) ? '✓' : ''}</p>`;
+        } else {
+          const ev = u => u[2].num()*r.v*r.v + u[1].num()*r.v + u[0].num();
+          cp += `<p>Con ${nombre} ≈ ${dec(r.v)}: el lado izquierdo da ≈ ${dec(ev(I0))} y el derecho ≈ ${dec(ev(D0))}. ✓</p>`;
+        }
+      });
+      const hayAprox = res.raices.some(r => !r.q);
+      h += paso('Comprueba los resultados',
+        `<p>Cambiamos la ${xH()} por cada solución en la ecuación original. Los dos lados deben dar lo mismo:</p>${cp}
+         ${hayAprox ? '<p class="pista">Con decimales los resultados pueden diferir un poquito por el redondeo; eso es normal.</p>' : ''}`);
+    }
+
+    // gráfica
+    const a = Number(A), b = Number(B), c = Number(C);
+    const f = x => a*x*x + b*x + c;
+    const hv = -b / (2*a), kv = f(hv);
+    let half;
+    if (raices.length === 2) half = Math.max(2, Math.abs(raices[1].v - raices[0].v) / 2 * 1.6);
+    else half = Math.max(2, Math.sqrt(Math.abs(kv / a)) * 1.6);
+    const xmin = hv - half, xmax = hv + half;
+    const muestras = []; for (let i = 0; i <= 40; i++) muestras.push(f(xmin + (xmax - xmin) * i / 40));
+    const [ymin, ymax] = rangoY(muestras, true);
+    const pts = raices.map((r, i) => ({x:r.v, y:0, texto:`${X}${raices.length > 1 ? (i ? '₂' : '₁') : ''} = ${dec(r.v)}`, abajo: a < 0 ? false : true}));
+    pts.push({x:hv, y:kv, clase:'g-pt2', claseTxt:'g-txt2', texto:'vértice', abajo: a > 0});
+    const expl = raices.length === 2 ? `Las soluciones son los dos puntos donde la parábola <strong>cruza el eje horizontal</strong>, porque ahí y vale 0.`
+      : raices.length === 1 ? `La parábola apenas <strong>toca</strong> el eje horizontal en un solo punto: por eso hay una sola solución.`
+      : `La parábola <strong>nunca toca</strong> el eje horizontal: por eso no hay solución con números reales.`;
+    h += paso('Mírala en una gráfica',
+      `<p>La gráfica de y = ${lado(I)} es una curva llamada <strong>parábola</strong>. ${expl}</p>
+       ${grafica({xmin, xmax, ymin, ymax, curvas:[{f}], puntos:pts, titulo:`Parábola y = ${lado(I).replace(/<[^>]+>/g, '')}`})}
+       <p class="pista">El vértice es el punto más ${a > 0 ? 'bajo' : 'alto'} de la parábola, en ${X} = ${dec(hv)}.</p>`);
+    h += '</ol>';
+
+    if (res.raices === null) return h;
+    if (!raices.length) return h + `<div class="resultado otro"><div class="grande">No tiene solución real</div><div class="pista">Ningún número real cumple la ecuación.</div></div>`;
+    const lineas = raices.map((r, i) => `<div class="linea">${xH()}${raices.length > 1 ? (i ? '₂' : '₁') : ''} = ${r.html}${r.q && r.q.d === 1n ? '' : ` <span class="pista">≈ ${dec(r.v)}</span>`}</div>`).join('');
+    return h + `<div class="resultado"><div>${raices.length > 1 ? 'Las soluciones son' : 'La solución es'}</div>${lineas}</div>`;
+  }
+
+  $('#resolver').addEventListener('click', resolver);
+  $('#metodo').addEventListener('change', resolver);
+  $('#ec').addEventListener('keydown', e => { if (e.key === 'Enter') resolver(); });
+  $('#salida').addEventListener('click', e => {
+    const b = e.target.closest('[data-metodo]');
+    if (b){ $('#metodo').value = b.dataset.metodo; resolver(); }
+  });
+  document.querySelectorAll('.ejemplos button').forEach(b =>
+    b.addEventListener('click', () => { $('#ec').value = b.textContent; resolver(); }));
+  resolver();
+})();
+</script>
+</body>
+</html>
