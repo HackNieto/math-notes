@@ -66,6 +66,7 @@ ol.pasos p{margin:6px 0}
 .rojo{color:var(--pen); font-weight:700}
 .frac{display:inline-flex; flex-direction:column; vertical-align:middle; text-align:center; font-size:.82em; line-height:1.1; margin:0 .12em}
 .frac > span:first-child{border-bottom:1.5px solid currentColor; padding:0 .2em}
+.ec .frac{font-size:.95em}
 .flecha{color:var(--soft); margin:2px 0 0 4px}
 .resultado{margin-top:8px; border:2px solid var(--ok); border-radius:14px; padding:16px; background:var(--card)}
 .resultado .grande{font-family:Georgia,serif; font-size:2.2rem; font-weight:700; color:var(--ok)}
@@ -75,6 +76,20 @@ ol.pasos p{margin:6px 0}
   ol.pasos > li{animation:aparece .35s ease both}
   @keyframes aparece{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
 }
+.grafica{margin:10px 0 4px; overflow-x:auto}
+.grafica svg{display:block; width:100%; max-width:560px; min-width:280px; height:auto; background:var(--paper); border:1px solid var(--line); border-radius:10px}
+.g-red{stroke:var(--line); stroke-width:1}
+.g-eje{stroke:var(--ink); stroke-width:1.6}
+.g-num{fill:var(--soft); font-size:11px; font-family:system-ui, sans-serif}
+.g-c1{fill:none; stroke:var(--ink); stroke-width:2.6}
+.g-c2{fill:none; stroke:var(--ok); stroke-width:2.6; stroke-dasharray:9 6}
+.g-pt{fill:var(--pen); stroke:var(--paper); stroke-width:2}
+.g-pt2{fill:var(--paper); stroke:var(--ink); stroke-width:2}
+.g-txt{fill:var(--pen); font-size:13px; font-weight:700; font-family:system-ui, sans-serif; paint-order:stroke; stroke:var(--paper); stroke-width:4px}
+.g-txt2{fill:var(--ink); font-size:12px; font-family:system-ui, sans-serif; paint-order:stroke; stroke:var(--paper); stroke-width:4px}
+.leyenda{display:flex; flex-direction:column; gap:4px; margin:6px 0; font-size:.95rem}
+.leyenda span.l{display:inline-block; width:28px; height:0; vertical-align:middle; margin-right:8px; border-top:3px solid var(--ink)}
+.leyenda span.l2{border-top:3px dashed var(--ok)}
 </style>
 </head>
 <body>
@@ -140,14 +155,14 @@ ol.pasos p{margin:6px 0}
       }
       if (/[a-zA-ZñÑ]/.test(c)){ t.push({t:'var', v:c.toLowerCase()}); i++; continue; }
       if ('+-*/()='.includes(c)){ t.push({t:c}); i++; continue; }
-      if ('^²³'.includes(c)) throw fallo('Esta herramienta resuelve ecuaciones de primer grado: la incógnita no puede estar elevada a una potencia (nada de x², x³…).');
+      if ('^²³'.includes(c)) throw fallo('Esta herramienta resuelve ecuaciones de primer grado: la incógnita no puede estar elevada a una potencia. Para ecuaciones con x² usa la herramienta de <a href="ecuaciones-segundo-grado.html">ecuaciones de segundo grado</a>.');
       throw fallo(`No reconozco el símbolo “${c}”.`);
     }
     return t;
   }
   const L = (a, b) => ({a, b});
   function mulL(u, v){
-    if (!u.a.zero() && !v.a.zero()) throw fallo('Aparece la incógnita multiplicada por sí misma (eso sería x²). Esta herramienta solo resuelve ecuaciones de primer grado.');
+    if (!u.a.zero() && !v.a.zero()) throw fallo('Aparece la incógnita multiplicada por sí misma (eso sería x²). Para eso usa la herramienta de <a href="ecuaciones-segundo-grado.html">ecuaciones de segundo grado</a>.');
     return L(u.a.mul(v.b).add(v.a.mul(u.b)), u.b.mul(v.b));
   }
   function divL(u, v){
@@ -242,6 +257,85 @@ ol.pasos p{margin:6px 0}
       ${m[1] && antes === '-' ? '<p class="pista">Fíjate en los signos: menos por más da menos, y menos por menos da más.</p>' : ''}`;
   }
 
+  // ---------- gráfica (SVG sin librerías) ----------
+  let idGraf = 0;
+  const fmtG = v => { const r = Math.round(v * 1e6) / 1e6; return (Object.is(r, -0) ? 0 : r).toLocaleString('es-ES', {maximumFractionDigits:2, useGrouping:false}).replace('-', '−'); };
+  function paso10(span){
+    const raw = span / 6, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p;
+  }
+  function grafica({xmin, xmax, ymin, ymax, curvas = [], puntos = [], titulo = 'Gráfica'}){
+    const W = 400, H = 300, ml = 40, mr = 12, mt = 12, mb = 28;
+    const sx = x => ml + (x - xmin) / (xmax - xmin) * (W - ml - mr);
+    const sy = y => mt + (ymax - y) / (ymax - ymin) * (H - mt - mb);
+    const id = 'clip' + (++idGraf);
+    let g = '';
+    const dx = paso10(xmax - xmin), dy = paso10(ymax - ymin);
+    for (let x = Math.ceil(xmin / dx) * dx; x <= xmax + 1e-9; x += dx){
+      const X = sx(x).toFixed(1);
+      g += `<line x1="${X}" y1="${mt}" x2="${X}" y2="${H - mb}" class="g-red"/><text x="${X}" y="${H - mb + 16}" text-anchor="middle" class="g-num">${fmtG(x)}</text>`;
+    }
+    for (let y = Math.ceil(ymin / dy) * dy; y <= ymax + 1e-9; y += dy){
+      const Y = sy(y).toFixed(1);
+      g += `<line x1="${ml}" y1="${Y}" x2="${W - mr}" y2="${Y}" class="g-red"/><text x="${ml - 5}" y="${(+Y + 4).toFixed(1)}" text-anchor="end" class="g-num">${fmtG(y)}</text>`;
+    }
+    if (xmin <= 0 && xmax >= 0) g += `<line x1="${sx(0).toFixed(1)}" y1="${mt}" x2="${sx(0).toFixed(1)}" y2="${H - mb}" class="g-eje"/>`;
+    if (ymin <= 0 && ymax >= 0) g += `<line x1="${ml}" y1="${sy(0).toFixed(1)}" x2="${W - mr}" y2="${sy(0).toFixed(1)}" class="g-eje"/>`;
+    let c = '';
+    curvas.forEach(cv => {
+      const pts = [];
+      for (let i = 0; i <= 240; i++){
+        const x = xmin + (xmax - xmin) * i / 240, y = cv.f(x);
+        const Y = Math.max(-2000, Math.min(2000, sy(y)));
+        pts.push(`${sx(x).toFixed(1)},${Y.toFixed(1)}`);
+      }
+      c += `<polyline points="${pts.join(' ')}" class="${cv.clase || 'g-c1'}"/>`;
+    });
+    let p = '';
+    puntos.forEach(pt => {
+      const X = sx(pt.x), Y = sy(pt.y);
+      p += `<circle cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" r="6" class="${pt.clase || 'g-pt'}"/>`;
+      if (pt.texto){
+        const izq = pt.izq ?? (X > W * 0.62), abajo = pt.dy ?? (pt.abajo ? 20 : -10);
+        p += `<text x="${(X + (izq ? -9 : 9)).toFixed(1)}" y="${Math.max(mt + 12, Math.min(H - mb - 4, Y + abajo)).toFixed(1)}" text-anchor="${izq ? 'end' : 'start'}" class="${pt.claseTxt || 'g-txt'}">${pt.texto}</text>`;
+      }
+    });
+    return `<div class="grafica"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${titulo}">
+      <defs><clipPath id="${id}"><rect x="${ml}" y="${mt}" width="${W - ml - mr}" height="${H - mt - mb}"/></clipPath></defs>
+      ${g}<g clip-path="url(#${id})">${c}</g>${p}</svg></div>`;
+  }
+  function rangoY(valores, incluirCero){
+    let lo = Math.min(...valores), hi = Math.max(...valores);
+    if (incluirCero){ lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+    if (hi - lo < 1e-9){ lo -= 2; hi += 2; }
+    const pad = (hi - lo) * 0.1;
+    return [lo - pad, hi + pad];
+  }
+
+  function pasoGrafica(I0, D0, sol){
+    const fI = x => I0.a.num()*x + I0.b.num(), fD = x => D0.a.num()*x + D0.b.num();
+    let xmin, xmax;
+    if (sol === null){ xmin = -5; xmax = 5; }
+    else {
+      const s = sol.num();
+      if (Math.abs(s) < 20){ xmin = Math.min(s - 4, -1); xmax = Math.max(s + 4, 1); }
+      else { xmin = s - 5; xmax = s + 5; }
+    }
+    const vals = [fI(xmin), fI(xmax), fD(xmin), fD(xmax)];
+    const [ymin, ymax] = rangoY(vals, false);
+    const pts = sol === null ? [] : [{x:sol.num(), y:fI(sol.num()), texto:`${X} = ${fmtG(sol.num())}`, dy:34, izq:false}];
+    const plano = u => lado(u).replace(/<[^>]+>/g, '');
+    let expl;
+    if (sol !== null) expl = `<p>Cada lado de la ecuación se puede dibujar como una <strong>recta</strong>. La solución es el punto donde <strong>las dos rectas se cruzan</strong>: ahí los dos lados valen lo mismo.</p>`;
+    else if (I0.a.eq(D0.a) && I0.b.eq(D0.b)) expl = `<p>Los dos lados son <strong>la misma recta</strong>: están encimadas en todos sus puntos. Por eso cualquier número es solución.</p>`;
+    else expl = `<p>Las dos rectas son <strong>paralelas</strong>: nunca se cruzan. Por eso no hay ningún número que haga iguales a los dos lados.</p>`;
+    return paso('Mírala en una gráfica',
+      `${expl}
+       <div class="leyenda"><span><span class="l"></span>Lado izquierdo: y = ${lado(I0)}</span><span><span class="l l2"></span>Lado derecho: y = ${lado(D0)}</span></div>
+       ${grafica({xmin, xmax, ymin, ymax, curvas:[{f:fI}, {f:fD, clase:'g-c2'}], puntos:pts, titulo:`Rectas y = ${plano(I0)} y y = ${plano(D0)}`})}
+       ${sol !== null ? `<p class="pista">El cruce está en ${xHTML()} = ${fmtG(sol.num())}, justo la solución que encontramos.</p>` : ''}`);
+  }
+
   // ---------- resolver ----------
   function resolver(){
     const out = $('#salida');
@@ -334,7 +428,7 @@ ol.pasos p{margin:6px 0}
           ? `<p>Nos quedó ${qFirmado(I.b)} = ${qFirmado(D.b)}, que siempre es verdad, sin importar cuánto valga ${xHTML()}.</p>
              <p>Pruébalo: con ${xHTML()} = 1, el lado izquierdo da ${qFirmado(izq0.a.add(izq0.b))} y el derecho da ${qFirmado(der0.a.add(der0.b))}. Con ${xHTML()} = 10: ${qFirmado(izq0.a.mul(new Q(10n)).add(izq0.b))} y ${qFirmado(der0.a.mul(new Q(10n)).add(der0.b))}.</p>`
           : `<p>Nos quedó ${qFirmado(I.b)} = ${qFirmado(D.b)}, que es <strong>falso</strong>. No importa qué número pongas en lugar de ${xHTML()}: los dos lados nunca van a ser iguales.</p>`);
-      h += '</ol>';
+      h += pasoGrafica(izq0, der0, null) + '</ol>';
       return h + `<div class="resultado otro"><div class="grande">${igual ? 'Tiene infinitas soluciones' : 'No tiene solución'}</div>
         <div class="pista">${igual ? `Cualquier número que pongas en lugar de ${xHTML()} cumple la ecuación. A esto se le llama identidad.` : 'Los dos lados nunca pueden valer lo mismo.'}</div></div>`;
     }
@@ -378,6 +472,7 @@ ol.pasos p{margin:6px 0}
        <p>Lado izquierdo: <span class="ec">${sust(izqTxt)} = ${qFirmado(vi)}</span></p>
        <p>Lado derecho: <span class="ec">${sust(derTxt)} = ${qFirmado(vd)}</span></p>
        <p>${vi.eq(vd) ? `Los dos lados dan ${qFirmado(vi)}. ✓ ¡La balanza está equilibrada, el resultado es correcto!` : 'Los lados no coinciden; revisa la ecuación.'}</p>`);
+    h += pasoGrafica(izq0, der0, sol);
     h += '</ol>';
     return h + `<div class="resultado"><div>La solución es</div><div class="grande">${xHTML()} = ${qFirmado(sol)}</div>
       ${sol.d !== 1n ? `<div class="pista">Aproximadamente ${sol.num().toLocaleString('es-ES', {maximumFractionDigits:4})}.</div>` : ''}</div>`;
