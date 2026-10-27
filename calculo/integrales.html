@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La integral paso a paso</title>
+<link rel="stylesheet" href="../css/tema.css">
+<link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body class="pagina-integrales">
+<main>
+  <a class="volver" href="../index.html">← Volver al menú</a>
+  <h1>La integral paso a paso</h1>
+  <p class="sub">La integral mide el área que queda entre una curva y el eje horizontal. Muévele a los controles y descúbrelo tú.</p>
+
+  <div class="panel">
+    <label for="fx">Tu función</label>
+    <div class="entrada">
+      <span class="etiqueta-f">f(<i>x</i>) =</span>
+      <input id="fx" value="x^2" autocomplete="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <div class="limites">
+      <label for="la">Desde <i>x</i> = <input id="la" value="0" inputmode="decimal" autocomplete="off"></label>
+      <label for="lb">hasta <i>x</i> = <input id="lb" value="3" inputmode="decimal" autocomplete="off"></label>
+      <button id="usar">Usar</button>
+    </div>
+    <p class="ayuda">Escribe un polinomio con x, por ejemplo 2x^2 − 3x + 1, y el tramo donde quieres medir el área.</p>
+    <p class="error" id="error" hidden></p>
+  </div>
+  <div class="ejemplos">Prueba con:
+    <button data-f="x^2" data-a="0" data-b="3">x² de 0 a 3</button>
+    <button data-f="3" data-a="1" data-b="5">3 de 1 a 5</button>
+    <button data-f="2x + 1" data-a="0" data-b="4">2x + 1 de 0 a 4</button>
+    <button data-f="-x^2 + 4" data-a="-2" data-b="2">−x² + 4 de −2 a 2</button>
+    <button data-f="x" data-a="-2" data-b="3">x de −2 a 3</button>
+    <button data-f="x^3 - 3x" data-a="-2" data-b="2">x³ − 3x de −2 a 2</button>
+  </div>
+
+  <section class="seccion">
+    <h2><span class="n">1</span>La idea: el área</h2>
+    <p>Imagina un coche que va a <strong>60 km/h</strong> durante <strong>2 horas</strong>. Recorre 60 × 2 = <strong>120 km</strong>.</p>
+    <p>Si dibujas la velocidad en una gráfica, esa multiplicación es el <strong>área de un rectángulo</strong>: 60 de alto por 2 de ancho. O sea, el área debajo de la gráfica de velocidad es la distancia recorrida.</p>
+    <p>Pero casi nunca la velocidad es constante: el coche acelera, frena, se detiene. Entonces la gráfica es una curva, y ya no basta multiplicar. La <strong>integral</strong> es la herramienta para medir el área debajo de una curva.</p>
+    <div class="destacado">La integral de f(<i>x</i>) desde <i>a</i> hasta <i>b</i> se escribe <span class="integral"><span class="int-s">∫</span><span class="int-l"><span><i>b</i></span><span><i>a</i></span></span></span> f(<i>x</i>) d<i>x</i></div>
+    <p class="pista">El símbolo ∫ es una S alargada, de “suma”: vamos a sumar muchísimos pedacitos. El d<i>x</i> significa que cada pedacito es muy delgado.</p>
+  </section>
+
+  <section class="seccion">
+    <h2><span class="n">2</span>Rellena el área con rectángulos</h2>
+    <p>El área de un rectángulo es fácil: base × altura. Así que llenamos el espacio debajo de la curva con rectángulos y sumamos sus áreas. Al principio la suma no es exacta, porque los rectángulos se salen o no alcanzan la curva.</p>
+    <div class="control">
+      <label for="n"><span>Número de rectángulos =</span> <output id="nv"></output></label>
+      <input type="range" id="n" min="1" max="100" step="1" value="4">
+    </div>
+    <div class="control">
+      <label for="modo"><span>La altura de cada rectángulo se mide en su…</span></label>
+      <select id="modo"><option value="0">lado izquierdo</option><option value="0.5" selected>centro</option><option value="1">lado derecho</option></select>
+    </div>
+    <div id="g1"></div>
+    <div class="lecturas">
+      <div><small>Ancho de cada rectángulo</small><b id="dx"></b></div>
+      <div><small>Suma de sus áreas</small><b id="suma"></b></div>
+      <div><small>Área exacta</small><b id="exacta"></b></div>
+    </div>
+    <div class="botones"><button id="mas">▶ Agregar rectángulos poco a poco</button><button id="menos">Volver a 4</button></div>
+    <p>Mientras <strong>más delgados</strong> son los rectángulos, menos se salen de la curva y la suma se acerca más al área exacta:</p>
+    <div class="tabla"><table><thead><tr><th>Rectángulos</th><th>Suma de áreas</th><th>Diferencia con el área exacta</th></tr></thead><tbody id="tabla1"></tbody></table></div>
+    <p id="concl1"></p>
+    <p class="pista" id="negativa"></p>
+  </section>
+
+  <section class="seccion">
+    <h2><span class="n">3</span>El área que se va acumulando</h2>
+    <p>Ahora movemos el final del tramo poco a poco y vemos cómo <strong>crece el área</strong>. Abajo se dibuja una nueva curva: en cada punto marca cuánta área llevamos acumulada desde <i>x</i> = <span class="v-a"></span>.</p>
+    <div class="control">
+      <label for="t"><span>Acumular hasta <i>x</i> =</span> <output id="tv"></output></label>
+      <input type="range" id="t" min="0" max="1" step="0.001" value="0.5">
+    </div>
+    <div class="botones"><button id="recorrer">▶ Acumular de principio a fin</button></div>
+    <p><strong>Tu función</strong> con el área acumulada:</p>
+    <div id="g2"></div>
+    <p><strong>El área acumulada</strong> en cada punto:</p>
+    <div id="g3"></div>
+    <div class="destacado" id="lectura3"></div>
+    <p class="pista">Fíjate: donde f(<i>x</i>) es <span class="sube">positiva</span>, el área acumulada <strong>crece</strong>; donde es <span class="baja">negativa</span>, <strong>disminuye</strong>. Y donde f(<i>x</i>) es más alta, crece más rápido. Es decir, la inclinación de la curva de abajo es justamente f(<i>x</i>): <strong>la derivada del área es la función original</strong>. Por eso integrar y <a href="derivadas.html">derivar</a> son operaciones contrarias. Esta idea se llama <strong>teorema fundamental del cálculo</strong>.</p>
+  </section>
+
+  <section class="seccion">
+    <h2><span class="n">4</span>Calcúlala con reglas</h2>
+    <p>Sumar rectángulos funciona, pero para el valor exacto hay un atajo: buscar una función F(<i>x</i>) cuya derivada sea f(<i>x</i>). Se llama <strong>antiderivada</strong>, y con ella el área sale con una resta.</p>
+    <div id="reglas"></div>
+  </section>
+</main>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+
+  // ---------- fracciones exactas ----------
+  const gcd = (a, b) => { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) [a, b] = [b, a % b]; return a; };
+  const absB = a => a < 0n ? -a : a;
+  class Q {
+    constructor(n, d = 1n){ if (d < 0n){ n = -n; d = -d; } const g = gcd(n, d) || 1n; this.n = n / g; this.d = d / g; }
+    add(o){ return new Q(this.n*o.d + o.n*this.d, this.d*o.d); }
+    sub(o){ return new Q(this.n*o.d - o.n*this.d, this.d*o.d); }
+    mul(o){ return new Q(this.n*o.n, this.d*o.d); }
+    div(o){ return new Q(this.n*o.d, this.d*o.n); }
+    neg(){ return new Q(-this.n, this.d); }
+    abs(){ return new Q(absB(this.n), this.d); }
+    zero(){ return this.n === 0n; }
+    one(){ return this.n === 1n && this.d === 1n; }
+    lt(o){ return this.n*o.d < o.n*this.d; }
+    num(){ return Number(this.n) / Number(this.d); }
+  }
+  const Q0 = new Q(0n), Q1 = new Q(1n), q = n => new Q(BigInt(n));
+  const numQ = s => { const [i, f = ''] = s.split('.'); return new Q(BigInt((i || '0') + f), 10n ** BigInt(f.length)); };
+  class Fallo extends Error {}
+  const fallo = m => new Fallo(m);
+
+  // ---------- polinomios (entrada hasta grado 6; la integral llega a 7) ----------
+  const G = 7;
+  const cero = () => Array(G + 1).fill(Q0);
+  const pAdd = (u, v) => u.map((c, i) => c.add(v[i]));
+  const pSub = (u, v) => u.map((c, i) => c.sub(v[i]));
+  const pNeg = u => u.map(c => c.neg());
+  function pMul(u, v){
+    const r = cero();
+    for (let i = 0; i <= G; i++) for (let j = 0; j <= G; j++){
+      if (u[i].zero() || v[j].zero()) continue;
+      if (i + j > 6) throw fallo('La potencia es muy grande. Usa polinomios hasta x^6.');
+      r[i+j] = r[i+j].add(u[i].mul(v[j]));
+    }
+    return r;
+  }
+  function pDiv(u, v){
+    if (v.some((c, i) => i > 0 && !c.zero())) throw fallo('Esta herramienta trabaja con polinomios: la x no puede estar dividiendo.');
+    if (v[0].zero()) throw fallo('Hay una división entre cero.');
+    return u.map(c => c.div(v[0]));
+  }
+  function tokens(s){
+    s = s.replace(/[−–—]/g, '-').replace(/[×·]/g, '*').replace(/÷/g, '/').replace(/\s+/g, '');
+    const t = []; let i = 0;
+    while (i < s.length){
+      const c = s[i];
+      if (/[0-9.,]/.test(c)){
+        let j = i; while (j < s.length && /[0-9.,]/.test(s[j])) j++;
+        const raw = s.slice(i, j), v = raw.replace(',', '.');
+        if (/[.,].*[.,]/.test(raw) || v === '.') throw fallo(`Revisa el número “${raw}”.`);
+        t.push({t:'num', v:numQ(v)}); i = j; continue;
+      }
+      if (c === 'x' || c === 'X'){ t.push({t:'var'}); i++; continue; }
+      if (/[a-zA-Z]/.test(c)) throw fallo('Usa la letra x como variable.');
+      if (c === '²'){ t.push({t:'^'}, {t:'num', v:q(2)}); i++; continue; }
+      if (c === '³'){ t.push({t:'^'}, {t:'num', v:q(3)}); i++; continue; }
+      if ('+-*/()^'.includes(c)){ t.push({t:c}); i++; continue; }
+      if (c === '=') throw fallo('Escribe solo la expresión, sin el signo =. Por ejemplo: x^2 + 1.');
+      throw fallo(`No reconozco el símbolo “${c}”.`);
+    }
+    return t;
+  }
+  function leer(s){
+    const t = tokens(s); let p = 0;
+    if (!t.length) throw fallo('Escribe una función, por ejemplo x^2.');
+    const ver = () => t[p], tomar = () => t[p++];
+    function expr(){ let v = term(); while (ver() && (ver().t === '+' || ver().t === '-')){ const op = tomar().t, r = term(); v = op === '+' ? pAdd(v, r) : pSub(v, r); } return v; }
+    function term(){ let v = un(); for (;;){ const k = ver(); if (!k) break;
+      if (k.t === '*'){ tomar(); v = pMul(v, un()); } else if (k.t === '/'){ tomar(); v = pDiv(v, un()); }
+      else if (k.t === 'num' || k.t === 'var' || k.t === '('){ v = pMul(v, un()); } else break; } return v; }
+    function un(){ const k = ver(); if (k && k.t === '-'){ tomar(); return pNeg(un()); } if (k && k.t === '+'){ tomar(); return un(); } return pot(); }
+    function pot(){ let v = prim(); while (ver() && ver().t === '^'){ tomar(); const e = tomar();
+      if (!e || e.t !== 'num' || e.v.d !== 1n || e.v.n > 6n) throw fallo('Después de ^ escribe un número entero del 0 al 6, por ejemplo x^3.');
+      let r = cero(); r[0] = Q1; for (let k = 0n; k < e.v.n; k++) r = pMul(r, v); v = r; } return v; }
+    function prim(){ const k = tomar(); if (!k) throw fallo('A la función le falta algo al final.');
+      if (k.t === 'num'){ const r = cero(); r[0] = k.v; return r; }
+      if (k.t === 'var'){ const r = cero(); r[1] = Q1; return r; }
+      if (k.t === '('){ const v = expr(); if (!ver() || ver().t !== ')') throw fallo('Falta cerrar un paréntesis.'); tomar(); return v; }
+      throw fallo(`Hay un signo “${k.t}” fuera de lugar.`); }
+    const v = expr();
+    if (p < t.length) throw fallo('Revisa cómo está escrita la función.');
+    return v;
+  }
+  function leerLimite(txt, nombre){
+    const s = txt.trim().replace(/[−–—]/g, '-').replace(',', '.');
+    if (!/^-?\d+(\.\d+)?$|^-?\.\d+$/.test(s)) throw fallo(`Escribe un número en “${nombre}”, por ejemplo 0 o 2,5.`);
+    const neg = s.startsWith('-'), v = numQ(neg ? s.slice(1) : s);
+    if (Math.abs(v.num()) > 100) throw fallo('Usa límites entre −100 y 100.');
+    return neg ? v.neg() : v;
+  }
+
+  // ---------- formato ----------
+  const qHTML = v => v.d === 1n ? absB(v.n).toString() : `<span class="frac"><span>${absB(v.n)}</span><span>${v.d}</span></span>`;
+  const qF = v => (v.n < 0n ? '−' : '') + qHTML(v);
+  const qP = v => v.n < 0n ? `(${qF(v)})` : qF(v);
+  const xp = k => k === 0 ? '' : k === 1 ? '<i>x</i>' : `<i>x</i><sup>${k}</sup>`;
+  function termino(c, k, primero){
+    const neg = c.n < 0n, ab = c.abs();
+    const cuerpo = k === 0 ? qHTML(ab) : (ab.one() ? '' : qHTML(ab)) + xp(k);
+    return (primero ? (neg ? '−' : '') : (neg ? ' − ' : ' + ')) + cuerpo;
+  }
+  function poli(u){
+    let s = '', primero = true;
+    for (let k = G; k >= 0; k--){ if (u[k].zero()) continue; s += termino(u[k], k, primero); primero = false; }
+    return s || '0';
+  }
+  const integrar = u => u.map((c, i) => i === 0 ? Q0 : u[i-1].div(q(i)));
+  const pEval = (u, x) => { let r = Q0; for (let k = G; k >= 0; k--) r = r.mul(x).add(u[k]); return r; };
+  const fmt = (v, d = 3) => { const r = Math.round(v * 10**d) / 10**d; return (r || 0).toLocaleString('es-ES', {maximumFractionDigits:d, useGrouping:false}).replace('-', '−'); };
+  const evalF = c => x => { let r = 0; for (let k = c.length - 1; k >= 0; k--) r = r * x + c[k]; return r; };
+  const simbolo = (a, b) => `<span class="integral"><span class="int-s">∫</span><span class="int-l"><span>${b}</span><span>${a}</span></span></span>`;
+
+  // ---------- gráfica (SVG sin librerías) ----------
+  let idGraf = 0;
+  const fmtG = v => { const r = Math.round(v * 1e6) / 1e6; return (Object.is(r, -0) ? 0 : r).toLocaleString('es-ES', {maximumFractionDigits:2, useGrouping:false}).replace('-', '−'); };
+  function paso10(span){
+    const raw = span / 6, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p;
+  }
+  function grafica({xmin, xmax, ymin, ymax, curvas = [], puntos = [], titulo = 'Gráfica'}){
+    const W = 400, H = 300, ml = 40, mr = 12, mt = 12, mb = 28;
+    const sx = x => ml + (x - xmin) / (xmax - xmin) * (W - ml - mr);
+    const sy = y => mt + (ymax - y) / (ymax - ymin) * (H - mt - mb);
+    const id = 'clip' + (++idGraf);
+    let g = '';
+    const dx = paso10(xmax - xmin), dy = paso10(ymax - ymin);
+    for (let x = Math.ceil(xmin / dx) * dx; x <= xmax + 1e-9; x += dx){
+      const X = sx(x).toFixed(1);
+      g += `<line x1="${X}" y1="${mt}" x2="${X}" y2="${H - mb}" class="g-red"/><text x="${X}" y="${H - mb + 16}" text-anchor="middle" class="g-num">${fmtG(x)}</text>`;
+    }
+    for (let y = Math.ceil(ymin / dy) * dy; y <= ymax + 1e-9; y += dy){
+      const Y = sy(y).toFixed(1);
+      g += `<line x1="${ml}" y1="${Y}" x2="${W - mr}" y2="${Y}" class="g-red"/><text x="${ml - 5}" y="${(+Y + 4).toFixed(1)}" text-anchor="end" class="g-num">${fmtG(y)}</text>`;
+    }
+    if (xmin <= 0 && xmax >= 0) g += `<line x1="${sx(0).toFixed(1)}" y1="${mt}" x2="${sx(0).toFixed(1)}" y2="${H - mb}" class="g-eje"/>`;
+    if (ymin <= 0 && ymax >= 0) g += `<line x1="${ml}" y1="${sy(0).toFixed(1)}" x2="${W - mr}" y2="${sy(0).toFixed(1)}" class="g-eje"/>`;
+    let c = '';
+    curvas.forEach(cv => {
+      const pts = [];
+      for (let i = 0; i <= 240; i++){
+        const x = xmin + (xmax - xmin) * i / 240, y = cv.f(x);
+        const Y = Math.max(-2000, Math.min(2000, sy(y)));
+        pts.push(`${sx(x).toFixed(1)},${Y.toFixed(1)}`);
+      }
+      c += `<polyline points="${pts.join(' ')}" class="${cv.clase || 'g-c1'}"/>`;
+    });
+    let p = '';
+    puntos.forEach(pt => {
+      const X = sx(pt.x), Y = sy(pt.y);
+      p += `<circle cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" r="6" class="${pt.clase || 'g-pt'}"/>`;
+      if (pt.texto){
+        const izq = pt.izq ?? (X > W * 0.62), abajo = pt.dy ?? (pt.abajo ? 20 : -10);
+        p += `<text x="${(X + (izq ? -9 : 9)).toFixed(1)}" y="${Math.max(mt + 12, Math.min(H - mb - 4, Y + abajo)).toFixed(1)}" text-anchor="${izq ? 'end' : 'start'}" class="${pt.claseTxt || 'g-txt'}">${pt.texto}</text>`;
+      }
+    });
+    return `<div class="grafica"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${titulo}">
+      <defs><clipPath id="${id}"><rect x="${ml}" y="${mt}" width="${W - ml - mr}" height="${H - mt - mb}"/></clipPath></defs>
+      ${g}<g clip-path="url(#${id})">${c}</g>${p}</svg></div>`;
+  }
+  function rangoY(valores, incluirCero){
+    let lo = Math.min(...valores), hi = Math.max(...valores);
+    if (incluirCero){ lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+    if (hi - lo < 1e-9){ lo -= 2; hi += 2; }
+    const pad = (hi - lo) * 0.1;
+    return [lo - pad, hi + pad];
+  }
+
+
+  // ---------- dibujo ----------
+  const W = 400, H = 280, ml = 40, mr = 12, mt = 12, mb = 28;
+  function marco(v, id){
+    const sx = x => ml + (x - v.xmin) / (v.xmax - v.xmin) * (W - ml - mr);
+    const sy = y => mt + (v.ymax - y) / (v.ymax - v.ymin) * (H - mt - mb);
+    let g = '';
+    const dx = paso10(v.xmax - v.xmin), dy = paso10(v.ymax - v.ymin);
+    for (let x = Math.ceil(v.xmin / dx) * dx; x <= v.xmax + 1e-9; x += dx){ const X = sx(x).toFixed(1); g += `<line x1="${X}" y1="${mt}" x2="${X}" y2="${H - mb}" class="g-red"/><text x="${X}" y="${H - mb + 16}" text-anchor="middle" class="g-num">${fmtG(x)}</text>`; }
+    for (let y = Math.ceil(v.ymin / dy) * dy; y <= v.ymax + 1e-9; y += dy){ const Y = sy(y).toFixed(1); g += `<line x1="${ml}" y1="${Y}" x2="${W - mr}" y2="${Y}" class="g-red"/><text x="${ml - 5}" y="${(+Y + 4).toFixed(1)}" text-anchor="end" class="g-num">${fmtG(y)}</text>`; }
+    if (v.xmin <= 0 && v.xmax >= 0) g += `<line x1="${sx(0).toFixed(1)}" y1="${mt}" x2="${sx(0).toFixed(1)}" y2="${H - mb}" class="g-eje"/>`;
+    const ejeX = (v.ymin <= 0 && v.ymax >= 0) ? `<line x1="${ml}" y1="${sy(0).toFixed(1)}" x2="${W - mr}" y2="${sy(0).toFixed(1)}" class="g-eje"/>` : '';
+    const clip = `<defs><clipPath id="${id}"><rect x="${ml}" y="${mt}" width="${W - ml - mr}" height="${H - mt - mb}"/></clipPath></defs>`;
+    return {sx, sy, g, ejeX, clip};
+  }
+  const lim = y => Math.max(-1e5, Math.min(1e5, y));
+  function curva(f, x0, x1, sx, sy, clase){
+    const pts = [];
+    for (let i = 0; i <= 200; i++){ const x = x0 + (x1 - x0) * i / 200; pts.push(`${sx(x).toFixed(1)},${lim(sy(f(x))).toFixed(1)}`); }
+    return `<polyline points="${pts.join(' ')}" class="${clase}"/>`;
+  }
+  function barra(x0, x1, h, sx, sy, borde){
+    const y0 = lim(sy(0)), y1 = lim(sy(h));
+    const top = Math.min(y0, y1), alto = Math.abs(y1 - y0);
+    return `<rect x="${sx(x0).toFixed(2)}" y="${top.toFixed(2)}" width="${Math.max(0.3, sx(x1) - sx(x0)).toFixed(2)}" height="${alto.toFixed(2)}" class="${h >= 0 ? 'g-area-pos' : 'g-area-neg'}${borde ? ' g-area-borde' : ''}"/>`;
+  }
+  function relleno(f, x0, x1, sx, sy){
+    if (x1 - x0 <= 1e-9) return '';
+    let r = '';
+    const k = 160;
+    for (let i = 0; i < k; i++){ const u0 = x0 + (x1 - x0) * i / k, u1 = x0 + (x1 - x0) * (i + 1) / k; r += barra(u0, u1, f((u0 + u1) / 2), sx, sy, false); }
+    return r;
+  }
+  const svg = (inner, etiqueta) => `<div class="grafica"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${etiqueta}">${inner}</svg></div>`;
+
+  // ---------- estado ----------
+  let F, Fi, f, Fn, A, B, a, b, exacta, v1, v3, txtF, txtFi;
+  const sumaRect = (n, m) => { const dx = (b - a) / n; let s = 0; for (let i = 0; i < n; i++) s += f(a + (i + m) * dx) * dx; return s; };
+
+  function ventana(){
+    const pad = (b - a) * 0.2;
+    let xmin = a - pad, xmax = b + pad;
+    if (xmin > 0 && xmin < (b - a)) xmin = -pad * 0.5;
+    if (xmax < 0 && -xmax < (b - a)) xmax = pad * 0.5;
+    const ys = []; for (let i = 0; i <= 120; i++) ys.push(f(xmin + (xmax - xmin) * i / 120));
+    let [ymin, ymax] = rangoY(ys, true);
+    return {xmin, xmax, ymin, ymax};
+  }
+
+  function dibujar1(){
+    const n = +$('#n').value, m = +$('#modo').value, dx = (b - a) / n;
+    $('#nv').textContent = n;
+    const {sx, sy, g, ejeX, clip} = marco(v1, 'c1');
+    let barras = '';
+    for (let i = 0; i < n; i++){ const x0 = a + i * dx; barras += barra(x0, x0 + dx, f(x0 + m * dx), sx, sy, n <= 40); }
+    let marcas = '';
+    if (n <= 40) for (let i = 0; i < n; i++){ const xm = a + (i + m) * dx; marcas += `<circle cx="${sx(xm).toFixed(1)}" cy="${lim(sy(f(xm))).toFixed(1)}" r="${n <= 12 ? 4 : 2.5}" class="g-pt"/>`; }
+    const inner = clip + g + `<g clip-path="url(#c1)">${barras}${ejeX}${curva(f, v1.xmin, v1.xmax, sx, sy, 'g-c1')}${marcas}</g>`;
+    const s = sumaRect(n, m);
+    $('#g1').innerHTML = svg(inner, `${n} rectángulos bajo la curva; suma ${fmt(s, 4)}`);
+    $('#dx').textContent = `(${fmt(b, 3)} − ${a < 0 ? `(${fmt(a, 3)})` : fmt(a, 3)}) ÷ ${n} = ${fmt(dx, 4)}`;
+    $('#suma').textContent = fmt(s, 4);
+    $('#exacta').textContent = fmt(exacta.num(), 4);
+  }
+  function tabla1(){
+    const m = +$('#modo').value, ex = exacta.num();
+    let filas = '';
+    [1, 2, 5, 10, 50, 100, 1000].forEach(n => { const s = sumaRect(n, m); filas += `<tr><td>${n}</td><td>${fmt(s, 4)}</td><td>${fmt(Math.abs(s - ex), 4)}</td></tr>`; });
+    filas += `<tr class="exacta"><td>infinitos</td><td>${fmt(ex, 4)}</td><td>0</td></tr>`;
+    $('#tabla1').innerHTML = filas;
+    $('#concl1').innerHTML = `Si pudiéramos usar <strong>infinitos rectángulos</strong> infinitamente delgados, la suma sería exacta: <strong>${fmt(ex, 4)}</strong>. Eso es la integral: ${simbolo(qF(a0), qF(b0))} f(<i>x</i>) d<i>x</i> = ${fmt(ex, 4)}.`;
+    let haySigno = false;
+    for (let i = 0; i <= 200; i++){ if (f(a + (b - a) * i / 200) < -1e-9){ haySigno = true; break; } }
+    $('#negativa').innerHTML = haySigno ? 'Ojo: cuando la curva está <strong>debajo del eje</strong>, la altura es negativa y ese pedazo de área <strong>se resta</strong> (lo pintamos de otro color). Por eso la integral da el área <strong>neta</strong>: lo de arriba menos lo de abajo.' : '';
+  }
+
+  function dibujar2(){
+    const u = +$('#t').value, t = a + (b - a) * u;
+    $('#tv').textContent = fmt(t, 2);
+    let r = marco(v1, 'c2');
+    let inner = r.clip + r.g + `<g clip-path="url(#c2)">${relleno(f, a, t, r.sx, r.sy)}${r.ejeX}${curva(f, v1.xmin, v1.xmax, r.sx, r.sy, 'g-c1')}</g>`;
+    inner += `<line x1="${r.sx(t).toFixed(1)}" y1="${mt}" x2="${r.sx(t).toFixed(1)}" y2="${H - mb}" class="g-tri"/>`;
+    $('#g2').innerHTML = svg(inner, `Área acumulada desde ${fmt(a, 2)} hasta ${fmt(t, 2)}`);
+    r = marco(v3, 'c3');
+    const At = x => Fn(x) - Fn(a);
+    inner = r.clip + r.g + r.ejeX + `<g clip-path="url(#c3)">${curva(At, v3.xmin, v3.xmax, r.sx, r.sy, 'g-c3 g-c3-tenue')}${curva(At, a, t, r.sx, r.sy, 'g-c3 g-c3-trazo')}</g>`;
+    inner += `<line x1="${r.sx(t).toFixed(1)}" y1="${mt}" x2="${r.sx(t).toFixed(1)}" y2="${H - mb}" class="g-tri"/>`;
+    inner += `<circle cx="${r.sx(t).toFixed(1)}" cy="${lim(r.sy(At(t))).toFixed(1)}" r="6" class="g-pt"/>`;
+    $('#g3').innerHTML = svg(inner, `Curva del área acumulada; en ${fmt(t, 2)} vale ${fmt(At(t))}`);
+    const ft = f(t);
+    const ritmo = Math.abs(ft) < 0.05 ? 'casi no cambia (f vale casi 0)' : ft > 0 ? `<span class="sube">crece</span> a ritmo ${fmt(ft, 2)}` : `<span class="baja">disminuye</span> a ritmo ${fmt(Math.abs(ft), 2)}`;
+    $('#lectura3').innerHTML = `Desde <i>x</i> = ${fmt(a, 2)} hasta <i>x</i> = ${fmt(t, 2)} llevamos un área de <strong>${fmt(At(t), 3)}</strong>. Justo ahí f(${fmt(t, 2)}) = ${fmt(ft, 3)}, así que el área ${ritmo}.`;
+  }
+
+  let a0, b0;
+  function reglas(){
+    let filas = '';
+    for (let k = 6; k >= 0; k--){
+      const c = F[k]; if (c.zero()) continue;
+      const res = termino(c.div(q(k + 1)), k + 1, true);
+      let regla;
+      if (k === 0) regla = `Un número solo se convierte en ese número por <i>x</i>. (Comprueba: la derivada de ${res} es ${termino(c, 0, true)}.)`;
+      else {
+        const nuevo = k + 1;
+        regla = `Súmale 1 al exponente: ${k} + 1 = ${nuevo}. Luego divide entre ${nuevo}${c.one() ? '' : `: ${qP(c)} ÷ ${nuevo} = ${qF(c.div(q(nuevo)))}`}.`;
+        if (k === 1) regla = `<i>x</i> sola es <i>x</i><sup>1</sup>. ` + regla;
+      }
+      filas += `<tr><td>${termino(c, k, true)}</td><td class="izq">${regla}</td><td><strong>${res}</strong></td></tr>`;
+    }
+    if (!filas) filas = `<tr><td>0</td><td class="izq">El área bajo la recta y = 0 es cero.</td><td><strong>0</strong></td></tr>`;
+    const sust = v => txtFi === '0' ? '0' : txtFi.replace(/<i>x<\/i>/g, `(${qF(v)})`);
+    const Fb = pEval(Fi, b0), Fa = pEval(Fi, a0), res = Fb.sub(Fa);
+    const exactoDec = res.d === 1n ? '' : ` ≈ ${fmt(res.num(), 4)}`;
+    $('#reglas').innerHTML = `
+      <ol class="pasos">
+        <li><h2>Conoce las reglas</h2>
+          <p><strong>Regla de la potencia (al revés):</strong> a <i>x</i><sup>n</sup> <strong>súmale 1 al exponente</strong> y <strong>divide entre el nuevo exponente</strong>.</p>
+          <p><span class="ec"><i>x</i><sup>n</sup> → <span class="frac"><span><i>x</i><sup>n + 1</sup></span><span>n + 1</span></span></span> &nbsp; por ejemplo: <span class="ec"><i>x</i><sup>2</sup> → <span class="frac"><span><i>x</i><sup>3</sup></span><span>3</span></span></span></p>
+          <p><strong>Número solo:</strong> se convierte en ese número por <i>x</i>. Así, 5 → 5<i>x</i>.</p>
+          <p><strong>Número que multiplica</strong> se queda multiplicando, y las <strong>sumas y restas</strong> se integran término por término.</p>
+          <p class="pista">Es la regla de la derivada hecha al revés: derivar <span class="frac"><span><i>x</i><sup>3</sup></span><span>3</span></span> regresa a <i>x</i><sup>2</sup>.</p></li>
+        <li><h2>Encuentra la antiderivada término por término</h2>
+          <div class="ec">f(<i>x</i>) = ${txtF}</div>
+          <div class="tabla"><table><thead><tr><th>Término</th><th>Qué hacemos</th><th>Resultado</th></tr></thead><tbody>${filas}</tbody></table></div>
+          <div class="ec">F(<i>x</i>) = ${txtFi}</div>
+          <p class="pista">En las tablas de integrales se agrega “+ C” al final, porque cualquier número sumado también desaparece al derivar. Para calcular un área no hace falta: al restar en el siguiente paso, la C se cancela.</p></li>
+        <li><h2>Evalúa en los dos extremos</h2>
+          <p>Sustituimos <i>x</i> por el final (${qF(b0)}) y por el inicio (${qF(a0)}):</p>
+          <p><span class="ec">F(${qF(b0)}) = ${sust(b0)} = ${qF(Fb)}</span></p>
+          <p><span class="ec">F(${qF(a0)}) = ${sust(a0)} = ${qF(Fa)}</span></p></li>
+        <li><h2>Resta: final menos inicio</h2>
+          <div class="ec">${simbolo(qF(a0), qF(b0))} f(<i>x</i>) d<i>x</i> = F(${qF(b0)}) − F(${qF(a0)}) = ${qF(Fb)} − ${qP(Fa)} = ${qF(res)}${exactoDec}</div>
+          <p>Es el mismo número al que se acercaban los rectángulos. ✓</p>
+          ${res.n < 0n ? '<p class="pista">Salió negativo porque hay más área debajo del eje que arriba.</p>' : ''}</li>
+      </ol>
+      <div class="resultado"><div>El área neta es</div><div class="grande">${simbolo(qF(a0), qF(b0))} ${txtF === '0' ? '0' : `(${txtF})`} d<i>x</i> = ${qF(res)}</div>${res.d !== 1n ? `<div class="pista">Aproximadamente ${fmt(res.num(), 4)}.</div>` : ''}</div>`;
+  }
+
+  function usar(){
+    const err = $('#error');
+    try {
+      F = leer($('#fx').value.trim());
+      a0 = leerLimite($('#la').value, 'Desde'); b0 = leerLimite($('#lb').value, 'hasta');
+      if (!a0.lt(b0)) throw fallo('El inicio del tramo debe ser menor que el final. Por ejemplo, desde 0 hasta 3.');
+    } catch(e){
+      if (e instanceof Fallo){ err.innerHTML = e.message; err.hidden = false; return; }
+      throw e;
+    }
+    err.hidden = true;
+    Fi = integrar(F);
+    f = evalF(F.map(c => c.num())); Fn = evalF(Fi.map(c => c.num()));
+    a = a0.num(); b = b0.num();
+    exacta = pEval(Fi, b0).sub(pEval(Fi, a0));
+    txtF = poli(F); txtFi = poli(Fi);
+    v1 = ventana();
+    const As = []; for (let i = 0; i <= 120; i++){ const x = v1.xmin + (v1.xmax - v1.xmin) * i / 120; As.push(Fn(x) - Fn(a)); }
+    const [ymin, ymax] = rangoY(As, true);
+    v3 = {xmin:v1.xmin, xmax:v1.xmax, ymin, ymax};
+    document.querySelectorAll('.v-a').forEach(e => e.textContent = fmt(a, 2));
+    dibujar1(); tabla1(); dibujar2(); reglas();
+  }
+
+  // ---------- animaciones ----------
+  const quieto = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  let anim = null;
+  function animar(input, desde, hasta, ms, alPaso, entero){
+    cancelAnimationFrame(anim);
+    if (quieto){ input.value = hasta; alPaso(); return; }
+    const t0 = performance.now();
+    const paso = t => {
+      const u = Math.min(1, (t - t0) / ms), v = desde + (hasta - desde) * u;
+      input.value = entero ? Math.round(v) : v;
+      alPaso();
+      if (u < 1) anim = requestAnimationFrame(paso);
+    };
+    anim = requestAnimationFrame(paso);
+  }
+
+  $('#usar').addEventListener('click', usar);
+  ['#fx', '#la', '#lb'].forEach(s => $(s).addEventListener('keydown', e => { if (e.key === 'Enter') usar(); }));
+  document.querySelectorAll('.ejemplos button').forEach(btn => btn.addEventListener('click', () => {
+    $('#fx').value = btn.dataset.f; $('#la').value = btn.dataset.a.replace('-', '−'); $('#lb').value = btn.dataset.b.replace('-', '−'); usar();
+  }));
+  $('#n').addEventListener('input', dibujar1);
+  $('#modo').addEventListener('change', () => { dibujar1(); tabla1(); });
+  $('#t').addEventListener('input', dibujar2);
+  $('#mas').addEventListener('click', () => animar($('#n'), 1, 100, 5000, dibujar1, true));
+  $('#menos').addEventListener('click', () => { cancelAnimationFrame(anim); $('#n').value = 4; dibujar1(); });
+  $('#recorrer').addEventListener('click', () => animar($('#t'), 0, 1, 6000, dibujar2, false));
+  usar();
+})();
+</script>
+</body>
+</html>
