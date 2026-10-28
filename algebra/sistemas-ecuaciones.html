@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sistemas de ecuaciones paso a paso</title>
+<link rel="stylesheet" href="../css/tema.css">
+<link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body class="pagina-sistemas">
+<main>
+  <a class="volver" href="../index.html">← Volver al menú</a>
+  <h1>Sistemas de ecuaciones paso a paso</h1>
+  <p class="sub">Escribe dos o tres ecuaciones, elige un método y mira cómo se encuentran los valores que cumplen todas al mismo tiempo.</p>
+
+  <div class="panel">
+    <div class="metodo-fila">
+      <label for="tam">Incógnitas</label>
+      <select id="tam"><option value="2" selected>Dos: x, y</option><option value="3">Tres: x, y, z</option></select>
+    </div>
+    <div class="ecuaciones">
+      <label for="e1">Ecuación 1</label><input id="e1" value="2x + 3y = 12" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <label for="e2">Ecuación 2</label><input id="e2" value="x - y = 1" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <label for="e3" class="solo3">Ecuación 3</label><input id="e3" class="solo3" value="x + 2y - z = 2" autocomplete="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <p class="ayuda">Usa las letras x, y (y z). Puedes escribir paréntesis, fracciones como x/2 y decimales como 0,5.</p>
+    <div class="metodo">
+      <label for="metodo">Método</label>
+      <select id="metodo">
+        <option value="reduccion" selected>Reducción (suma y resta)</option>
+        <option value="sustitucion">Sustitución</option>
+        <option value="igualacion">Igualación</option>
+        <option value="gauss">Gauss-Jordan (matrices)</option>
+      </select>
+      <p class="desc" id="desc"></p>
+    </div>
+    <div class="botones"><button id="resolver" class="principal">Resolver</button></div>
+  </div>
+  <div class="ejemplos" id="ej2">Prueba con:
+    <button data-e="x + y = 10|x - y = 2">x + y = 10, x − y = 2</button>
+    <button data-e="2x + 3y = 12|x - y = 1">2x + 3y = 12, x − y = 1</button>
+    <button data-e="y = 2x + 1|y = -x + 7">y = 2x + 1, y = −x + 7</button>
+    <button data-e="3x + 2y = 7|5x - 3y = -1">3x + 2y = 7, 5x − 3y = −1</button>
+    <button data-e="x/2 + y = 4|x - y = 2">x/2 + y = 4, x − y = 2</button>
+    <button data-e="x + 2y = 4|2x + 4y = 8">x + 2y = 4, 2x + 4y = 8</button>
+    <button data-e="x + y = 3|x + y = 5">x + y = 3, x + y = 5</button>
+  </div>
+  <div class="ejemplos" id="ej3" hidden>Prueba con:
+    <button data-e="x + y + z = 6|2x - y + z = 3|x + 2y - z = 2">x + y + z = 6 …</button>
+    <button data-e="2x + y - z = 8|-3x - y + 2z = -11|-2x + y + 2z = -3">2x + y − z = 8 …</button>
+    <button data-e="x + y + z = 3|x - y + z = 1|2x + 2z = 4">Infinitas soluciones</button>
+    <button data-e="x + y + z = 1|x + y + z = 2|x - y = 0">Sin solución</button>
+  </div>
+
+  <div id="salida" aria-live="polite"></div>
+</main>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const DESC = {
+    reduccion: 'Multiplicas las ecuaciones para que, al sumarlas, una incógnita desaparezca.',
+    sustitucion: 'Despejas una incógnita en una ecuación y la sustituyes en la otra.',
+    igualacion: 'Despejas la misma incógnita en las dos ecuaciones e igualas los resultados.',
+    gauss: 'Escribes los números en una tabla (matriz) y la simplificas renglón por renglón. Sirve para 2, 3 o más incógnitas.'
+  };
+
+  // ---------- fracciones exactas ----------
+  const gcd = (a, b) => { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) [a, b] = [b, a % b]; return a; };
+  const lcm = (a, b) => a / gcd(a, b) * b;
+  const absB = a => a < 0n ? -a : a;
+  class Q {
+    constructor(n, d = 1n){ if (d < 0n){ n = -n; d = -d; } const g = gcd(n, d) || 1n; this.n = n / g; this.d = d / g; }
+    add(o){ return new Q(this.n*o.d + o.n*this.d, this.d*o.d); }
+    sub(o){ return new Q(this.n*o.d - o.n*this.d, this.d*o.d); }
+    mul(o){ return new Q(this.n*o.n, this.d*o.d); }
+    div(o){ return new Q(this.n*o.d, this.d*o.n); }
+    neg(){ return new Q(-this.n, this.d); }
+    abs(){ return new Q(absB(this.n), this.d); }
+    zero(){ return this.n === 0n; }
+    one(){ return this.n === 1n && this.d === 1n; }
+    eq(o){ return this.n === o.n && this.d === o.d; }
+    num(){ return Number(this.n) / Number(this.d); }
+  }
+  const Q0 = new Q(0n), Q1 = new Q(1n), q = n => new Q(BigInt(n));
+  const numQ = s => { const [i, f = ''] = s.split('.'); return new Q(BigInt((i || '0') + f), 10n ** BigInt(f.length)); };
+  class Fallo extends Error {}
+  const fallo = m => new Fallo(m);
+
+  // ---------- expresiones lineales: {c:[x, y, z], k} ----------
+  const VARS = ['x', 'y', 'z'];
+  const L = (c, k) => ({c, k});
+  const Ec = (c, d) => ({c, d});
+  const lAdd = (u, v) => L(u.c.map((c, i) => c.add(v.c[i])), u.k.add(v.k));
+  const lSub = (u, v) => L(u.c.map((c, i) => c.sub(v.c[i])), u.k.sub(v.k));
+  const lNeg = u => L(u.c.map(c => c.neg()), u.k.neg());
+  const lEsc = (u, f) => L(u.c.map(c => c.mul(f)), u.k.mul(f));
+  const tieneVar = u => u.c.some(c => !c.zero());
+  function lMul(u, v){
+    if (tieneVar(u) && tieneVar(v)) throw fallo('Aparecen dos incógnitas multiplicadas entre sí (como xy o x²). Aquí solo se resuelven sistemas de ecuaciones de primer grado.');
+    return tieneVar(u) ? lEsc(u, v.k) : lEsc(v, u.k);
+  }
+  function lDiv(u, v){
+    if (tieneVar(v)) throw fallo('Una incógnita quedó dividiendo. Aquí las incógnitas deben estar arriba.');
+    if (v.k.zero()) throw fallo('Hay una división entre cero.');
+    return lEsc(u, Q1.div(v.k));
+  }
+  const normalizar = s => s.replace(/[−–—]/g, '-').replace(/[×·]/g, '*').replace(/÷/g, '/').replace(/\s+/g, '');
+  function tokens(s, n){
+    const t = []; let i = 0;
+    while (i < s.length){
+      const c = s[i];
+      if (/[0-9.,]/.test(c)){
+        let j = i; while (j < s.length && /[0-9.,]/.test(s[j])) j++;
+        const raw = s.slice(i, j), v = raw.replace(',', '.');
+        if (/[.,].*[.,]/.test(raw) || v === '.') throw fallo(`Revisa el número “${raw}”.`);
+        t.push({t:'num', v:numQ(v)}); i = j; continue;
+      }
+      if (/[a-zA-Z]/.test(c)){
+        const k = VARS.indexOf(c.toLowerCase());
+        if (k < 0 || k >= n) throw fallo(n === 2 ? `Usa solo las letras x e y (encontré “${c}”). Para tres incógnitas, cambia a “Tres: x, y, z”.` : `Usa solo las letras x, y, z (encontré “${c}”).`);
+        t.push({t:'var', v:k}); i++; continue;
+      }
+      if ('+-*/()='.includes(c)){ t.push({t:c}); i++; continue; }
+      if ('^²³'.includes(c)) throw fallo('Las incógnitas no pueden estar elevadas a una potencia: aquí solo van sistemas de primer grado.');
+      throw fallo(`No reconozco el símbolo “${c}”.`);
+    }
+    return t;
+  }
+  function leerLado(t){
+    let p = 0;
+    const ver = () => t[p], tomar = () => t[p++];
+    function expr(){ let v = term(); while (ver() && (ver().t === '+' || ver().t === '-')){ const op = tomar().t, r = term(); v = op === '+' ? lAdd(v, r) : lSub(v, r); } return v; }
+    function term(){ let v = un(); for (;;){ const k = ver(); if (!k) break;
+      if (k.t === '*'){ tomar(); v = lMul(v, un()); } else if (k.t === '/'){ tomar(); v = lDiv(v, un()); }
+      else if (k.t === 'num' || k.t === 'var' || k.t === '('){ v = lMul(v, un()); } else break; } return v; }
+    function un(){ const k = ver(); if (k && k.t === '-'){ tomar(); return lNeg(un()); } if (k && k.t === '+'){ tomar(); return un(); } return prim(); }
+    function prim(){ const k = tomar(); if (!k) throw fallo('A una ecuación le falta algo: revisa que no termine en un signo.');
+      if (k.t === 'num') return L([Q0, Q0, Q0], k.v);
+      if (k.t === 'var'){ const c = [Q0, Q0, Q0]; c[k.v] = Q1; return L(c, Q0); }
+      if (k.t === '('){ const v = expr(); if (!ver() || ver().t !== ')') throw fallo('Falta cerrar un paréntesis.'); tomar(); return v; }
+      throw fallo(k.t === ')' ? 'Hay un paréntesis que se cierra sin haberse abierto.' : `Hay un signo “${k.t}” fuera de lugar.`); }
+    if (!t.length) throw fallo('Uno de los lados de una ecuación está vacío.');
+    const v = expr();
+    if (p < t.length) throw fallo('Revisa cómo está escrita la ecuación.');
+    return v;
+  }
+
+  // ---------- formato ----------
+  const qHTML = v => v.d === 1n ? absB(v.n).toString() : `<span class="frac"><span>${absB(v.n)}</span><span>${v.d}</span></span>`;
+  const qF = v => (v.n < 0n ? '−' : '') + qHTML(v);
+  const qP = v => v.n < 0n ? `(${qF(v)})` : qF(v);
+  const qTexto = v => (v.n < 0n ? '−' : '') + (v.d === 1n ? absB(v.n) : `${absB(v.n)}/${v.d}`);
+  const vH = i => `<i>${VARS[i]}</i>`;
+  function terminos(lista){
+    const it = lista.filter(t => !t.q.zero());
+    if (!it.length) return '0';
+    return it.map((t, i) => {
+      const neg = t.q.n < 0n, ab = t.q.abs();
+      const cuerpo = t.v !== undefined && t.v !== null ? (ab.one() ? '' : qHTML(ab)) + vH(t.v) : qHTML(ab);
+      const s = (i === 0 ? (neg ? '−' : '') : (neg ? ' − ' : ' + ')) + cuerpo;
+      return t.hl ? `<span class="rojo">${s}</span>` : s;
+    }).join('');
+  }
+  const ladoEc = (e, n) => terminos(e.c.slice(0, n).map((c, i) => ({q:c, v:i})));
+  const ecH = (izq, der) => `<div class="ec">${izq}<span class="igual">=</span>${der}</div>`;
+  const ecuacion = (e, n) => ecH(ladoEc(e, n), qF(e.d));
+  const bonito = s => s.replace(/\*/g, ' × ').replace(/-/g, ' − ').replace(/\+/g, ' + ').replace(/=/g, ' = ').replace(/\s+/g, ' ').replace(/\( /g, '(').replace(/^ − /, '−').replace(/= − /, '= −').replace(/\(\s*−\s*/g, '(−').trim();
+  const paso = (t, c, clase = '') => `<li${clase ? ` class="${clase}"` : ''}><h2>${t}</h2>${c}</li>`;
+  const SUB = ['₁', '₂', '₃'];
+  const nombreEc = i => `ecuación ${i + 1}`;
+
+  // resuelve K·v = R mostrando la cuenta
+  function despejeSimple(K, R, v){
+    const val = R.div(K);
+    if (K.one()) return {html: ecH(vH(v), qF(R)), val};
+    return {html: `${ecH(terminos([{q:K, v}]), qF(R))}<p>Dividimos los dos lados entre ${qF(K)}:</p>${ecH(vH(v), `${qF(R)} ÷ ${qP(K)} = ${qF(val)}`)}`, val};
+  }
+  // ecuación con la incógnita o ya sustituida por su valor, respetando el orden x, y
+  function sustituida(e, o, val){
+    let out = '', primero = true;
+    [0, 1].forEach(i => {
+      const c = e.c[i]; if (c.zero()) return;
+      const neg = c.n < 0n, ab = c.abs();
+      const signo = primero ? (neg ? '−' : '') : (neg ? ' − ' : ' + ');
+      out += signo + (i === o ? `${ab.one() ? '' : qHTML(ab)}(${qF(val)})` : (ab.one() ? '' : qHTML(ab)) + vH(i));
+      primero = false;
+    });
+    return out;
+  }
+  // p + r·(val) escrito con el valor entre paréntesis
+  function regreso(p, r, val){
+    if (r.zero()) return qF(p);
+    const t = `${r.abs().one() ? '' : qHTML(r.abs())}(${qF(val)})`;
+    if (p.zero()) return (r.n < 0n ? '−' : '') + t;
+    return `${qF(p)} ${r.n < 0n ? '−' : '+'} ${t}`;
+  }
+  function pasoEspecial(R){
+    const inf = R.zero();
+    return {inf, html: paso('¡Las incógnitas desaparecieron!',
+      inf ? `<p>Nos quedó 0 = 0, que siempre es verdad. Eso pasa cuando las dos ecuaciones son en realidad <strong>la misma</strong> (una es múltiplo de la otra). Cualquier punto que cumpla una, cumple la otra.</p>`
+          : `<p>Nos quedó 0 = ${qF(R)}, que es <strong>falso</strong>. Eso significa que no hay ningún par de números que cumpla las dos ecuaciones a la vez.</p>`, 'aviso')};
+  }
+
+  // ---------- métodos para 2 incógnitas ----------
+  function reduccion(E){
+    const [e1, e2] = E;
+    let h = '';
+    // elegir incógnita a eliminar
+    const opciones = [0, 1].filter(v => !e1.c[v].zero() && !e2.c[v].zero());
+    if (!opciones.length) return sustitucion(E, 'Cada ecuación tiene una sola incógnita, así que no hace falta eliminar: usamos sustitución.');
+    let v = opciones.find(v => e1.c[v].abs().eq(e2.c[v].abs()));
+    if (v === undefined) v = opciones.reduce((m, w) => lcm(absB(e1.c[w].n), absB(e2.c[w].n)) < lcm(absB(e1.c[m].n), absB(e2.c[m].n)) ? w : m, opciones[0]);
+    const o = 1 - v, a1 = e1.c[v].n, a2 = e2.c[v].n;
+    const Lc = lcm(absB(a1), absB(a2));
+    let m1 = Lc / absB(a1), m2 = Lc / absB(a2);
+    if ((a1 > 0n) === (a2 > 0n)) m2 = -m2;
+    const f1 = Ec(e1.c.map(c => c.mul(q(m1))), e1.d.mul(q(m1))), f2 = Ec(e2.c.map(c => c.mul(q(m2))), e2.d.mul(q(m2)));
+    let expl = `<p>Vamos a <strong>eliminar la ${vH(v)}</strong>. Para eso necesitamos que sus números sean iguales pero con signo contrario, así al sumar se cancelan.</p>`;
+    if (m1 === 1n && m2 === 1n) expl += `<p>Ya lo están: ${terminos([{q:e1.c[v], v}])} y ${terminos([{q:e2.c[v], v}])}.</p>`;
+    else {
+      expl += `<p>${m1 !== 1n ? `Multiplicamos <strong>toda</strong> la ecuación 1 por ${m1}` : 'La ecuación 1 se queda igual'}${m2 !== 1n ? ` y <strong>toda</strong> la ecuación 2 por ${m2 < 0n ? `(${m2.toString().replace('-', '−')})` : m2}` : ', y la ecuación 2 se queda igual'}:</p>`;
+      expl += `${ecH(`${m1 !== 1n ? `<span class="rojo">${m1}</span>(${ladoEc(e1, 2)})` : ladoEc(e1, 2)}`, m1 !== 1n ? `<span class="rojo">${m1}</span>(${qF(e1.d)})` : qF(e1.d))}
+               ${ecH(`${m2 !== 1n ? `<span class="rojo">${m2.toString().replace('-', '−')}</span>(${ladoEc(e2, 2)})` : ladoEc(e2, 2)}`, m2 !== 1n ? `<span class="rojo">${m2.toString().replace('-', '−')}</span>(${qF(e2.d)})` : qF(e2.d))}`;
+      expl += `<p class="pista">Multiplicar todos los términos de una ecuación por el mismo número no cambia sus soluciones.</p>`;
+    }
+    h += paso(`Prepara la ${VARS[v]} para que se cancele`, expl);
+    const sumC = f1.c[o].add(f2.c[o]), sumD = f1.d.add(f2.d);
+    const fila = (e, cls = '') => `<tr class="${cls}"><td>${terminos([{q:e.c[0], v:0}])}</td><td>${e.c[1].zero() ? '' : (e.c[1].n < 0n ? '− ' : '+ ') + terminos([{q:e.c[1].abs(), v:1}])}</td><td>=</td><td>${qF(e.d)}</td></tr>`;
+        h += paso('Suma las dos ecuaciones',
+      `<p>Sumamos columna por columna, las ${vH(0)} con las ${vH(0)}, las ${vH(1)} con las ${vH(1)} y los números con los números:</p>
+       <div class="tabla"><table class="suma"><tbody>${fila(f1)}${fila(f2)}<tr class="raya"><td colspan="4"></td></tr>
+       <tr><td>${v === 0 ? '<span class="rojo">0</span>' : terminos([{q:sumC, v:0}])}</td><td>${v === 1 ? '<span class="rojo">+ 0</span>' : (sumC.n < 0n ? '− ' : '+ ') + terminos([{q:sumC.abs(), v:1}])}</td><td>=</td><td>${qF(sumD)}</td></tr></tbody></table></div>
+       <p>La ${vH(v)} desapareció y queda una ecuación con una sola incógnita.</p>`);
+    if (sumC.zero()){ const s = pasoEspecial(sumD); return {h: h + s.html, sol: null, inf: s.inf}; }
+    const d1 = despejeSimple(sumC, sumD, o);
+    h += paso(`Despeja la ${VARS[o]}`, d1.html);
+    const base = !e1.c[v].zero() ? 0 : 1, eb = E[base];
+    const resto = eb.d.sub(eb.c[o].mul(d1.val));
+    const d2 = despejeSimple(eb.c[v], resto, v);
+    h += paso(`Encuentra la ${VARS[v]}`,
+      `<p>Sustituimos ${vH(o)} = ${qF(d1.val)} en la ${nombreEc(base)}:</p>
+       ${ecH(sustituida(eb, o, d1.val), qF(eb.d))}
+       ${eb.c[o].zero() ? '' : `<p>Hacemos la multiplicación y pasamos ese número al otro lado:</p>`}
+       ${d2.html}`);
+    const sol = [Q0, Q0]; sol[o] = d1.val; sol[v] = d2.val;
+    return {h, sol};
+  }
+
+  function despejar(e, v, o){
+    // e: c_v·v + c_o·o = d  →  v = p + r·o
+    const cv = e.c[v], co = e.c[o];
+    const p = e.d.div(cv), r = co.neg().div(cv);
+    let html = '';
+    if (!co.zero()) html += `<p>Pasamos ${terminos([{q:co, v:o}])} al otro lado (cambia de signo):</p>${ecH(terminos([{q:cv, v}]), terminos([{q:e.d}, {q:co.neg(), v:o}]))}`;
+    if (!cv.one()){
+      const num = terminos([{q:e.d}, {q:co.neg(), v:o}]);
+      html += `<p>Dividimos todo entre ${qF(cv)}:</p>${ecH(vH(v), co.zero() ? `${qF(e.d)} ÷ ${qP(cv)} = ${qF(p)}` : `<span class="frac"><span>${num}</span><span>${qF(cv)}</span></span>`)}`;
+      if (!co.zero()) html += `<p class="pista">Es lo mismo que repartir la división a cada término:</p>${ecH(vH(v), terminos([{q:p}, {q:r, v:o}]))}`;
+    }
+    if (co.zero() && cv.one()) html += ecH(vH(v), qF(p));
+    return {html, p, r};
+  }
+
+  function sustitucion(E, aviso = ''){
+    let h = aviso ? paso('Método', `<p>${aviso}</p>`) : '';
+    let i = -1, v = -1;
+    for (const ii of [0, 1]) for (const vv of [0, 1]) if (i < 0 && E[ii].c[vv].abs().one()){ i = ii; v = vv; }
+    if (i < 0) for (const ii of [0, 1]) for (const vv of [0, 1]) if (i < 0 && !E[ii].c[vv].zero()){ i = ii; v = vv; }
+    const o = 1 - v, j = 1 - i, ei = E[i], ej = E[j];
+    const des = despejar(ei, v, o);
+    h += paso(`Despeja la ${VARS[v]} en la ${nombreEc(i)}`,
+      `<p>Elegimos la ${vH(v)} de la ${nombreEc(i)}${ei.c[v].abs().one() ? ' porque no tiene número enfrente (es más fácil)' : ''}:</p>${ecuacion(ei, 2)}${des.html}`);
+    const expr = terminos([{q:des.p}, {q:des.r, v:o}]);
+    let K, R;
+    if (ej.c[v].zero()){
+      K = ej.c[o]; R = ej.d;
+      h += paso('Resuelve la otra ecuación', `<p>La ${nombreEc(j)} no tiene ${vH(v)}, así que ya se puede resolver directo:</p>${ecuacion(ej, 2)}`);
+    } else {
+      const cvj = ej.c[v], coj = ej.c[o];
+      const a = cvj.mul(des.r), b = cvj.mul(des.p);
+      K = a.add(coj); R = ej.d.sub(b);
+      const pre = cvj.one() ? '' : cvj.eq(Q1.neg()) ? '−' : qF(cvj);
+      const izq = (v === 0)
+        ? `${pre}<span class="rojo">(${expr})</span>${coj.zero() ? '' : ` ${coj.n < 0n ? '−' : '+'} ${terminos([{q:coj.abs(), v:o}])}`}`
+        : `${terminos([{q:coj, v:o}])} ${cvj.n < 0n ? '−' : '+'} ${cvj.abs().one() ? '' : qHTML(cvj.abs())}<span class="rojo">(${expr})</span>`;
+      h += paso(`Sustituye en la ${nombreEc(j)}`,
+        `<p>En la ${nombreEc(j)} cambiamos la ${vH(v)} por lo que obtuvimos (en rojo):</p>${ecuacion(ej, 2)}${ecH(izq, qF(ej.d))}
+         <p>Multiplicamos para quitar el paréntesis y juntamos los términos parecidos:</p>
+         ${ecH(terminos([{q:a, v:o}, {q:b}, {q:coj, v:o}]), qF(ej.d))}${ecH(terminos([{q:K, v:o}, {q:b}]), qF(ej.d))}
+         ${b.zero() ? '' : `<p>Pasamos ${qF(b)} al otro lado:</p>${ecH(terminos([{q:K, v:o}]), qF(R))}`}`);
+    }
+    if (K.zero()){ const s = pasoEspecial(R); return {h: h + s.html, sol: null, inf: s.inf}; }
+    const d1 = despejeSimple(K, R, o);
+    h += paso(`Despeja la ${VARS[o]}`, d1.html);
+    const val = des.p.add(des.r.mul(d1.val));
+    h += paso(`Regresa para encontrar la ${VARS[v]}`,
+      `<p>Usamos el despeje del principio con ${vH(o)} = ${qF(d1.val)}:</p>
+       ${ecH(vH(v), `${regreso(des.p, des.r, d1.val)} = ${qF(val)}`)}`);
+    const sol = [Q0, Q0]; sol[o] = d1.val; sol[v] = val;
+    return {h, sol};
+  }
+
+  function igualacion(E){
+    const v = [1, 0].find(w => !E[0].c[w].zero() && !E[1].c[w].zero());
+    if (v === undefined) return sustitucion(E, 'Cada ecuación tiene una sola incógnita, así que no se puede despejar la misma en las dos: usamos sustitución.');
+    const o = 1 - v;
+    const d = E.map(e => despejar(e, v, o));
+    let h = '';
+    [0, 1].forEach(i => { h += paso(`Despeja la ${VARS[v]} en la ${nombreEc(i)}`, `${ecuacion(E[i], 2)}${d[i].html}`); });
+    const e1 = terminos([{q:d[0].p}, {q:d[0].r, v:o}]), e2 = terminos([{q:d[1].p}, {q:d[1].r, v:o}]);
+    const K = d[0].r.sub(d[1].r), R = d[1].p.sub(d[0].p);
+    h += paso('Iguala los dos despejes',
+      `<p>Las dos expresiones son iguales a ${vH(v)}, así que son iguales entre sí:</p>${ecH(e1, e2)}
+       <p>Pasamos las ${vH(o)} a la izquierda y los números a la derecha (cambiando de signo):</p>
+       ${ecH(terminos([{q:d[0].r, v:o}, {q:d[1].r.neg(), v:o, hl:true}]), terminos([{q:d[1].p}, {q:d[0].p.neg(), hl:true}]))}
+       ${ecH(terminos([{q:K, v:o}]), qF(R))}`);
+    if (K.zero()){ const s = pasoEspecial(R); return {h: h + s.html, sol: null, inf: s.inf}; }
+    const d1 = despejeSimple(K, R, o);
+    h += paso(`Despeja la ${VARS[o]}`, d1.html);
+    const val = d[0].p.add(d[0].r.mul(d1.val));
+    h += paso(`Encuentra la ${VARS[v]}`,
+      `<p>Sustituimos ${vH(o)} = ${qF(d1.val)} en el primer despeje:</p>${ecH(vH(v), `${regreso(d[0].p, d[0].r, d1.val)} = ${qF(val)}`)}`);
+    const sol = [Q0, Q0]; sol[o] = d1.val; sol[v] = val;
+    return {h, sol};
+  }
+
+  // ---------- Gauss-Jordan ----------
+  function matriz(M, n, cambiados = []){
+    const cab = `<tr>${VARS.slice(0, n).map(v => `<th><i>${v}</i></th>`).join('')}<th class="aum"></th></tr>`;
+    const filas = M.map((r, i) => `<tr class="${cambiados.includes(i) ? 'cambio' : ''}">${r.map((c, j) => `<td class="${j === n ? 'aum' : ''}">${qF(c)}</td>`).join('')}</tr>`).join('');
+    return `<div class="matriz-caja"><span class="renglones">${M.map((_, i) => `<span>R${SUB[i]}</span>`).join('')}</span><table class="matriz"><thead>${cab}</thead><tbody>${filas}</tbody></table></div>`;
+  }
+  const vecTxt = (r, n) => `(${r.slice(0, n).map(qF).join(', ')} | ${qF(r[n])})`;
+  function gauss(E, n){
+    let M = E.map(e => [...e.c.slice(0, n), e.d]);
+    let h = paso('Escribe la matriz aumentada',
+      `<p>Copiamos solo los números en una tabla: cada <strong>renglón</strong> (R${SUB[0]}, R${SUB[1]}…) es una ecuación y cada <strong>columna</strong> es una incógnita. La última columna, separada con una línea, son los resultados.</p>
+       ${matriz(M, n)}
+       <p><strong>La meta:</strong> que la parte izquierda quede con <strong>1 en la diagonal y 0 en todo lo demás</strong>. Así cada renglón dirá directamente cuánto vale una incógnita.</p>
+       <p class="pista">Solo se permiten tres movimientos, porque no cambian las soluciones: intercambiar dos renglones, multiplicar o dividir un renglón por un número (que no sea 0), y sumarle o restarle a un renglón un múltiplo de otro.</p>`);
+    let r = 0, primeraResta = true;
+    for (let j = 0; j < n && r < n; j++){
+      let ops = '';
+      let i = -1;
+      for (let k = r; k < n; k++) if (M[k][j].abs().one()){ i = k; break; }
+      if (i < 0) for (let k = r; k < n; k++) if (!M[k][j].zero()){ i = k; break; }
+      if (i < 0){
+        h += paso(`Columna de la ${VARS[j]}`, `<p>Todos los números de esta columna (desde el renglón ${r + 1} hacia abajo) ya son 0, así que no se puede poner un 1 aquí. Pasamos a la siguiente columna.</p>`, 'aviso');
+        continue;
+      }
+      if (i !== r){
+        [M[i], M[r]] = [M[r], M[i]];
+        ops += `<div class="op"><p><span class="op-et">R${SUB[r]} ↔ R${SUB[i]}</span> Intercambiamos renglones para tener ${M[r][j].abs().one() ? 'un 1 (o −1)' : 'un número distinto de cero'} en la diagonal.</p>${matriz(M, n, [r, i])}</div>`;
+      }
+      const p = M[r][j];
+      if (!p.one()){
+        const f = Q1.div(p);
+        M[r] = M[r].map(c => c.mul(f));
+        const et = p.eq(Q1.neg()) ? `R${SUB[r]} → −R${SUB[r]}` : p.d === 1n ? `R${SUB[r]} → R${SUB[r]} ÷ ${qP(p)}` : `R${SUB[r]} → ${qF(f)} · R${SUB[r]}`;
+        const txt = p.eq(Q1.neg()) ? 'Cambiamos el signo de todo el renglón' : p.d === 1n ? `Dividimos todo el renglón entre ${qF(p)}` : `Multiplicamos todo el renglón por ${qF(f)}`;
+        ops += `<div class="op"><p><span class="op-et">${et}</span> ${txt} para que en la diagonal quede un 1.</p>${matriz(M, n, [r])}</div>`;
+      }
+      for (let k = 0; k < n; k++){
+        if (k === r || M[k][j].zero()) continue;
+        const f = M[k][j], antes = M[k];
+        M[k] = M[k].map((c, t) => c.sub(f.mul(M[r][t])));
+        const mult = f.abs().one() ? '' : qHTML(f.abs());
+        const et = `R${SUB[k]} → R${SUB[k]} ${f.n < 0n ? '+' : '−'} ${mult}R${SUB[r]}`;
+        const txt = `Para hacer 0 el ${qF(f)} del renglón ${k + 1}, le ${f.n < 0n ? 'sumamos' : 'restamos'} ${f.abs().one() ? '' : qHTML(f.abs()) + ' veces '}el renglón ${r + 1} (el que tiene el 1).`;
+        const cuenta = primeraResta ? `<p class="pista">Se hace número por número: <span class="cuenta">${vecTxt(antes, n)} ${f.n < 0n ? '+' : '−'} ${mult ? mult + ' · ' : ''}${vecTxt(M[r], n)} = ${vecTxt(M[k], n)}</span></p>` : '';
+        primeraResta = false;
+        ops += `<div class="op"><p><span class="op-et">${et}</span> ${txt}</p>${cuenta}${matriz(M, n, [k])}</div>`;
+      }
+      h += paso(`Columna de la ${VARS[j]}: un 1 en la diagonal y ceros en lo demás`, ops || `<p>Esta columna ya está lista.</p>${matriz(M, n)}`);
+      r++;
+    }
+    const imposible = M.some(row => row.slice(0, n).every(c => c.zero()) && !row[n].zero());
+    if (imposible){
+      const row = M.find(row => row.slice(0, n).every(c => c.zero()) && !row[n].zero());
+      h += paso('Lee el resultado', `<p>Hay un renglón con puros ceros a la izquierda y ${qF(row[n])} a la derecha. Significa 0 = ${qF(row[n])}, que es <strong>falso</strong>: el sistema no tiene solución.</p>`, 'aviso');
+      return {h, sol: null, inf: false};
+    }
+    if (r < n){
+      h += paso('Lee el resultado', `<p>Quedó al menos un renglón con <strong>puros ceros</strong> (0 = 0), que siempre es verdad. Eso pasa cuando una ecuación se puede obtener combinando las otras: en realidad hay menos ecuaciones de las que parece, y el sistema tiene <strong>infinitas soluciones</strong>.</p>`, 'aviso');
+      return {h, sol: null, inf: true};
+    }
+    h += paso('Lee el resultado',
+      `<p>La parte izquierda ya tiene 1 en la diagonal y 0 en lo demás. Cada renglón se lee como una ecuación:</p>
+       ${M.map((row, i) => `<p><span class="cuenta">R${SUB[i]}: 1${vH(i)} = ${qF(row[n])}</span> &nbsp;→&nbsp; <strong>${vH(i)} = ${qF(row[n])}</strong></p>`).join('')}`);
+    return {h, sol: M.map(row => row[n])};
+  }
+
+  // ---------- flujo principal ----------
+  function resolver(){
+    const n = +$('#tam').value, metodo = n === 3 ? 'gauss' : $('#metodo').value;
+    $('#desc').textContent = n === 3 ? DESC.gauss + ' Con tres incógnitas se usa este método.' : DESC[metodo];
+    const out = $('#salida');
+    try {
+      const textos = [], orig = [], E = [];
+      for (let i = 0; i < n; i++){
+        const s = normalizar($('#e' + (i + 1)).value.trim());
+        if (!s) throw fallo(`Falta escribir la ecuación ${i + 1}.`);
+        const t = tokens(s, n);
+        const ig = t.filter(k => k.t === '=').length;
+        if (ig !== 1) throw fallo(`La ecuación ${i + 1} debe tener exactamente un signo =.`);
+        const pos = t.findIndex(k => k.t === '=');
+        const I = leerLado(t.slice(0, pos)), D = leerLado(t.slice(pos + 1));
+        const dif = lSub(I, D);
+        if (!tieneVar(dif)) throw fallo(`Al acomodar la ecuación ${i + 1}, las incógnitas se cancelan. Revisa que esté bien escrita.`);
+        textos.push(s); orig.push([I, D]);
+        E.push(Ec(dif.c, dif.k.neg()));
+      }
+      out.innerHTML = pasos(n, metodo, textos, orig, E);
+    } catch(e){
+      if (e instanceof Fallo){ out.innerHTML = `<p class="error">${e.message}</p>`; return; }
+      throw e;
+    }
+  }
+
+  function pasos(n, metodo, textos, orig, E0){
+    let h = '<ol class="pasos">';
+    h += paso('Lee el sistema',
+      `${textos.map(s => { const [a, b] = s.split('='); return ecH(bonito(a), bonito(b)); }).join('<br>')}
+       <p>Un sistema son varias ecuaciones que deben cumplirse <strong>al mismo tiempo</strong>. Buscamos ${n === 2 ? `los valores de ${vH(0)} y de ${vH(1)}` : `los valores de ${vH(0)}, ${vH(1)} y ${vH(2)}`} que hagan verdaderas ${n === 2 ? 'las dos' : 'las tres'}.</p>
+       <p class="pista">Por ejemplo: “2 tortas y 3 refrescos cuestan $120, y 1 torta y 1 refresco cuestan $50”. Cada dato es una ecuación, y la respuesta tiene que cumplir los dos.</p>`);
+    // acomodar y quitar fracciones
+    const E = E0.map(e => {
+      let m = e.d.d; e.c.forEach(c => { m = lcm(m, c.d); });
+      return {e: Ec(e.c.map(c => c.mul(new Q(m))), e.d.mul(new Q(m))), m};
+    });
+    const plano = e => (ladoEc(e, n) + '=' + qF(e.d)).replace(/<[^>]+>/g, '').replace(/\s+/g, '');
+    const cambio = E.some((x, i) => x.m !== 1n || plano(x.e) !== textos[i].replace(/-/g, '−'));
+    if (cambio){
+      h += paso('Acomoda cada ecuación',
+        `<p>Dejamos cada ecuación en la forma ${n === 2 ? `a${vH(0)} + b${vH(1)} = c` : `a${vH(0)} + b${vH(1)} + c${vH(2)} = d`}: las incógnitas a la izquierda, en orden, y el número solo a la derecha.${E.some(x => x.m !== 1n) ? ' Si hay fracciones o decimales, multiplicamos toda la ecuación para quitarlos.' : ''}</p>
+         ${E.map((x, i) => `<p>Ecuación ${i + 1}${x.m !== 1n ? ` <span class="pista">(multiplicada por ${x.m})</span>` : ''}:</p>${ecuacion(x.e, n)}`).join('')}`);
+    }
+    const Es = E.map(x => x.e);
+    const res = metodo === 'gauss' ? gauss(Es, n) : metodo === 'sustitucion' ? sustitucion(Es) : metodo === 'igualacion' ? igualacion(Es) : reduccion(Es);
+    h += res.h;
+    if (res.sol){
+      const sol = res.sol;
+      const sustTxt = s => bonito(s).replace(/[xyz]/gi, (m, j, str) => {
+        const v = sol[VARS.indexOf(m.toLowerCase())];
+        const simple = v.d === 1n && v.n >= 0n && !/[0-9)]/.test(str[j - 1] || '');
+        return simple ? qTexto(v) : `(${qTexto(v)})`;
+      });
+      const ev = u => u.c.slice(0, n).reduce((acc, c, i) => acc.add(c.mul(sol[i])), u.k);
+      const filas = textos.map((s, i) => {
+        const [a, b] = s.split('='), vi = ev(orig[i][0]), vd = ev(orig[i][1]);
+        return `<p>Ecuación ${i + 1}: <span class="ec">${sustTxt(a)} = ${qF(vi)}</span> y del otro lado ${qF(vd)} ${vi.eq(vd) ? '✓' : '✗'}</p>`;
+      }).join('');
+      h += paso('Comprueba en las ecuaciones originales',
+        `<p>Sustituimos ${sol.map((v, i) => `${vH(i)} = ${qF(v)}`).join(', ')} en cada ecuación. Los dos lados deben dar lo mismo:</p>${filas}`);
+    }
+    if (n === 2) h += pasoGrafica(Es, res);
+    else h += paso('¿Y la gráfica?', `<p>Con tres incógnitas, cada ecuación es un <strong>plano</strong> en el espacio (como una hoja de papel infinita). La solución es el punto donde se cruzan los tres planos. Por eso aquí no la dibujamos: necesitaría tres dimensiones.</p>`);
+    h += '</ol>';
+    if (res.sol) return h + `<div class="resultado"><div>La solución es</div>${res.sol.map((v, i) => `<div class="linea">${vH(i)} = ${qF(v)}${v.d !== 1n ? ` <span class="pista">≈ ${v.num().toLocaleString('es-ES', {maximumFractionDigits:4})}</span>` : ''}</div>`).join('')}</div>`;
+    return h + `<div class="resultado otro"><div class="grande">${res.inf ? 'Tiene infinitas soluciones' : 'No tiene solución'}</div><div class="pista">${res.inf ? 'Hay muchísimos valores que cumplen todas las ecuaciones a la vez.' : 'Ningún conjunto de valores cumple todas las ecuaciones a la vez.'}</div></div>`;
+  }
+
+  // ---------- gráfica (SVG sin librerías) ----------
+  let idGraf = 0;
+  const fmtG = v => { const r = Math.round(v * 1e6) / 1e6; return (Object.is(r, -0) ? 0 : r).toLocaleString('es-ES', {maximumFractionDigits:2, useGrouping:false}).replace('-', '−'); };
+  function paso10(span){
+    const raw = span / 6, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p;
+  }
+  function grafica({xmin, xmax, ymin, ymax, curvas = [], puntos = [], titulo = 'Gráfica'}){
+    const W = 400, H = 300, ml = 40, mr = 12, mt = 12, mb = 28;
+    const sx = x => ml + (x - xmin) / (xmax - xmin) * (W - ml - mr);
+    const sy = y => mt + (ymax - y) / (ymax - ymin) * (H - mt - mb);
+    const id = 'clip' + (++idGraf);
+    let g = '';
+    const dx = paso10(xmax - xmin), dy = paso10(ymax - ymin);
+    for (let x = Math.ceil(xmin / dx) * dx; x <= xmax + 1e-9; x += dx){
+      const X = sx(x).toFixed(1);
+      g += `<line x1="${X}" y1="${mt}" x2="${X}" y2="${H - mb}" class="g-red"/><text x="${X}" y="${H - mb + 16}" text-anchor="middle" class="g-num">${fmtG(x)}</text>`;
+    }
+    for (let y = Math.ceil(ymin / dy) * dy; y <= ymax + 1e-9; y += dy){
+      const Y = sy(y).toFixed(1);
+      g += `<line x1="${ml}" y1="${Y}" x2="${W - mr}" y2="${Y}" class="g-red"/><text x="${ml - 5}" y="${(+Y + 4).toFixed(1)}" text-anchor="end" class="g-num">${fmtG(y)}</text>`;
+    }
+    if (xmin <= 0 && xmax >= 0) g += `<line x1="${sx(0).toFixed(1)}" y1="${mt}" x2="${sx(0).toFixed(1)}" y2="${H - mb}" class="g-eje"/>`;
+    if (ymin <= 0 && ymax >= 0) g += `<line x1="${ml}" y1="${sy(0).toFixed(1)}" x2="${W - mr}" y2="${sy(0).toFixed(1)}" class="g-eje"/>`;
+    let c = '';
+    curvas.forEach(cv => {
+      if (cv.vx !== undefined){ const X = sx(cv.vx).toFixed(1); c += `<line x1="${X}" y1="${mt}" x2="${X}" y2="${H - mb}" class="${cv.clase || 'g-c1'}"/>`; return; }
+      const pts = [];
+      for (let i = 0; i <= 240; i++){
+        const x = xmin + (xmax - xmin) * i / 240, y = cv.f(x);
+        const Y = Math.max(-2000, Math.min(2000, sy(y)));
+        pts.push(`${sx(x).toFixed(1)},${Y.toFixed(1)}`);
+      }
+      c += `<polyline points="${pts.join(' ')}" class="${cv.clase || 'g-c1'}"/>`;
+    });
+    let p = '';
+    puntos.forEach(pt => {
+      const X = sx(pt.x), Y = sy(pt.y);
+      p += `<circle cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" r="6" class="${pt.clase || 'g-pt'}"/>`;
+      if (pt.texto){
+        const izq = pt.izq ?? (X > W * 0.62), abajo = pt.dy ?? (pt.abajo ? 20 : -10);
+        p += `<text x="${(X + (izq ? -9 : 9)).toFixed(1)}" y="${Math.max(mt + 12, Math.min(H - mb - 4, Y + abajo)).toFixed(1)}" text-anchor="${izq ? 'end' : 'start'}" class="${pt.claseTxt || 'g-txt'}">${pt.texto}</text>`;
+      }
+    });
+    return `<div class="grafica"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${titulo}">
+      <defs><clipPath id="${id}"><rect x="${ml}" y="${mt}" width="${W - ml - mr}" height="${H - mt - mb}"/></clipPath></defs>
+      ${g}<g clip-path="url(#${id})">${c}</g>${p}</svg></div>`;
+  }
+  function rangoY(valores, incluirCero){
+    let lo = Math.min(...valores), hi = Math.max(...valores);
+    if (incluirCero){ lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+    if (hi - lo < 1e-9){ lo -= 2; hi += 2; }
+    const pad = (hi - lo) * 0.1;
+    return [lo - pad, hi + pad];
+  }
+
+
+  function pasoGrafica(E, res){
+    const curvas = E.map((e, i) => {
+      const [a, b] = e.c, cl = i ? 'g-c2' : 'g-c1';
+      return b.zero() ? {vx: e.d.div(a).num(), clase: cl} : {f: x => (e.d.num() - a.num() * x) / b.num(), clase: cl};
+    });
+    let xmin = -5, xmax = 5, extraY = [];
+    if (res.sol){
+      const sx = res.sol[0].num(), sy = res.sol[1].num();
+      if (Math.abs(sx) < 20){ xmin = Math.min(sx - 4, -1); xmax = Math.max(sx + 4, 1); } else { xmin = sx - 5; xmax = sx + 5; }
+      extraY.push(sy);
+    }
+    const vals = [...extraY];
+    curvas.forEach(c => { if (c.f) vals.push(c.f(xmin), c.f(xmax)); });
+    if (!vals.length) vals.push(-5, 5);
+    const [ymin, ymax] = rangoY(vals, false);
+    const pts = res.sol ? [{x: res.sol[0].num(), y: res.sol[1].num(), texto: `(${fmtG(res.sol[0].num())}, ${fmtG(res.sol[1].num())})`, dy: 34, izq: false}] : [];
+    const expl = res.sol ? 'Cada ecuación es una <strong>recta</strong>. La solución es el punto donde <strong>las dos rectas se cruzan</strong>: es el único punto que está en las dos.'
+      : res.inf ? 'Las dos ecuaciones son <strong>la misma recta</strong> (quedan encimadas). Todos sus puntos cumplen las dos, por eso hay infinitas soluciones.'
+      : 'Las rectas son <strong>paralelas</strong>: tienen la misma inclinación y nunca se cruzan. Por eso no hay solución.';
+    return paso('Mírala en una gráfica',
+      `<p>${expl}</p>
+       <div class="leyenda"><span><span class="l"></span>Ecuación 1: ${ladoEc(E[0], 2)} = ${qF(E[0].d)}</span><span><span class="l l2"></span>Ecuación 2: ${ladoEc(E[1], 2)} = ${qF(E[1].d)}</span></div>
+       ${grafica({xmin, xmax, ymin, ymax, curvas, puntos: pts, titulo: 'Rectas de las dos ecuaciones'})}`);
+  }
+
+  function ajustarTam(){
+    const n = +$('#tam').value;
+    document.querySelectorAll('.solo3').forEach(e => e.hidden = n !== 3);
+    $('#ej2').hidden = n !== 2; $('#ej3').hidden = n !== 3;
+    [...$('#metodo').options].forEach(o => { o.disabled = n === 3 && o.value !== 'gauss'; });
+    if (n === 3) $('#metodo').value = 'gauss';
+  }
+  $('#tam').addEventListener('change', () => {
+    ajustarTam();
+    const n = +$('#tam').value;
+    $(n === 3 ? '#ej3 button' : '#ej2 button').dataset.e.split('|').forEach((t, i) => { $('#e' + (i + 1)).value = t; });
+    resolver();
+  });
+  $('#resolver').addEventListener('click', resolver);
+  $('#metodo').addEventListener('change', resolver);
+  ['#e1', '#e2', '#e3'].forEach(s => $(s).addEventListener('keydown', e => { if (e.key === 'Enter') resolver(); }));
+  document.querySelectorAll('.ejemplos button').forEach(b => b.addEventListener('click', () => {
+    b.dataset.e.split('|').forEach((t, i) => { $('#e' + (i + 1)).value = t; });
+    resolver();
+  }));
+  ajustarTam();
+  resolver();
+})();
+</script>
+</body>
+</html>
