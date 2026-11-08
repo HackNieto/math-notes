@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Funciones lineales paso a paso</title>
+<link rel="stylesheet" href="../css/tema.css">
+<link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body class="pagina-lineales">
+<main>
+  <a class="volver" href="../index.html">← Volver al menú</a>
+  <h1>Funciones lineales</h1>
+  <p class="sub">Toda ecuación de la forma y = m<i>x</i> + b se dibuja como una recta. Escribe tu ecuación para resolverla paso a paso, o baja a las secciones para descubrir qué hace cada número.</p>
+
+  <div class="panel">
+    <label for="ec">Tu ecuación</label>
+    <div class="entrada">
+      <input id="ec" value="2x + 3y = 6" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button id="resolver">Resolver</button>
+    </div>
+    <p class="ayuda">Usa las letras x y y. Puede estar en cualquier forma: y = 2x + 1, 2x + 3y = 6, y − 3 = 2(x − 1)…</p>
+  </div>
+  <div class="ejemplos" id="ejemplos-ec">Prueba con:
+    <button>y = 2x + 1</button><button>2x + 3y = 6</button><button>y - 3 = 2(x - 1)</button><button>x - 2y = 4</button><button>3y = 9</button><button>x = 4</button>
+  </div>
+  <div id="resultado" aria-live="polite"></div>
+
+  <h2 class="titulo-aprende">Aprende cómo funciona</h2>
+
+  <section class="seccion">
+    <h2><span class="n">1</span>La idea: una máquina de números</h2>
+    <p>Imagina una máquina: le das un número <i>x</i>, lo multiplica por <strong>m</strong>, le suma <strong>b</strong> y te devuelve <i>y</i>.</p>
+    <div class="destacado">y = m<i>x</i> + b</div>
+    <p>Por ejemplo, con y = 2<i>x</i> + 1: si entra <i>x</i> = 3, sale y = 2 × 3 + 1 = 7. Cada pareja (<i>x</i>, y) es un punto, y al dibujar todos los puntos se forma una <strong>línea recta</strong>. Por eso se llaman funciones <strong>lineales</strong>.</p>
+    <p class="pista">Ejemplo de la vida real: un taxi cobra $15 por subirte y $8 por cada kilómetro. Lo que pagas es y = 8<i>x</i> + 15, donde <i>x</i> son los kilómetros. Aquí m = 8 y b = 15.</p>
+  </section>
+
+  <section class="seccion">
+    <h2><span class="n">2</span>¿Qué hace cada número?</h2>
+    <p>Mueve los controles y mira cómo cambia la recta.</p>
+    <div class="control">
+      <label for="m"><span><strong>m</strong>, la pendiente =</span> <output id="mv"></output></label>
+      <input type="range" id="m" min="-5" max="5" step="0.25" value="2">
+    </div>
+    <div class="control">
+      <label for="b"><span><strong>b</strong>, la ordenada al origen =</span> <output id="bv"></output></label>
+      <input type="range" id="b" min="-8" max="8" step="0.5" value="1">
+    </div>
+    <div class="ejemplos" id="presets">Prueba con:
+      <button data-m="1" data-b="0">y = x</button><button data-m="2" data-b="1">y = 2x + 1</button><button data-m="-1" data-b="3">y = −x + 3</button><button data-m="0.5" data-b="-2">y = 0,5x − 2</button><button data-m="0" data-b="3">y = 3</button>
+    </div>
+    <div class="destacado" id="ecuacion"></div>
+    <div id="g1"></div>
+    <div class="lecturas">
+      <div><small>Pendiente (m)</small><b id="lm"></b></div>
+      <div><small>Cruza el eje vertical en</small><b id="lb"></b></div>
+      <div><small>Cruza el eje horizontal en</small><b id="lx"></b></div>
+    </div>
+    <p id="explM"></p>
+    <p id="explB"></p>
+    <p class="pista">El triángulo punteado muestra la pendiente: desde el punto donde la recta cruza el eje vertical, avanzas 1 a la derecha y subes (o bajas) m.</p>
+  </section>
+
+  <section class="seccion">
+    <h2><span class="n">3</span>Tabla de valores</h2>
+    <p>Otra forma de dibujar la recta: elegir algunos valores de <i>x</i>, calcular su y, y marcar los puntos. Con <strong>dos puntos basta</strong> para trazar una recta; el tercero sirve para comprobar. Esta tabla se actualiza con los controles de arriba, y sus puntos aparecen en la gráfica.</p>
+    <div class="tabla"><table><thead><tr><th><i>x</i></th><th>Cuenta</th><th>y</th><th>Punto</th></tr></thead><tbody id="tabla"></tbody></table></div>
+    <p class="pista">Fíjate en la columna de y: cada vez que <i>x</i> aumenta 1, y cambia exactamente m. Eso es lo que significa la pendiente.</p>
+  </section>
+
+  <section class="seccion">
+    <h2><span class="n">4</span>Encuentra la ecuación con dos puntos</h2>
+    <p>Si conoces dos puntos por los que pasa una recta, puedes encontrar su ecuación.</p>
+    <p class="pista">¿Te dan un punto y la pendiente, o necesitas la forma general A<i>x</i> + By + C = 0? Usa la herramienta de <a href="ecuaciones-recta.html">ecuaciones de la recta</a>.</p>
+    <div class="puntos">
+      <span class="pt-et">Punto A</span>
+      <span class="par">(<input id="x1" value="1" inputmode="decimal" aria-label="x del punto A">, <input id="y1" value="3" inputmode="decimal" aria-label="y del punto A">)</span>
+      <span class="pt-et">Punto B</span>
+      <span class="par">(<input id="x2" value="3" inputmode="decimal" aria-label="x del punto B">, <input id="y2" value="7" inputmode="decimal" aria-label="y del punto B">)</span>
+    </div>
+    <div class="botones"><button id="calcular" class="principal">Encontrar la ecuación</button></div>
+    <p class="ayuda">Puedes usar enteros, decimales como 1,5 o fracciones como 3/4.</p>
+    <div id="salida" aria-live="polite"></div>
+  </section>
+</main>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+
+  // ---------- fracciones exactas ----------
+  const gcd = (a, b) => { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) [a, b] = [b, a % b]; return a; };
+  const lcm = (a, b) => a / gcd(a, b) * b;
+  const absB = a => a < 0n ? -a : a;
+  class Q {
+    constructor(n, d = 1n){ if (d < 0n){ n = -n; d = -d; } const g = gcd(n, d) || 1n; this.n = n / g; this.d = d / g; }
+    add(o){ return new Q(this.n*o.d + o.n*this.d, this.d*o.d); }
+    sub(o){ return new Q(this.n*o.d - o.n*this.d, this.d*o.d); }
+    mul(o){ return new Q(this.n*o.n, this.d*o.d); }
+    div(o){ return new Q(this.n*o.d, this.d*o.n); }
+    neg(){ return new Q(-this.n, this.d); }
+    abs(){ return new Q(absB(this.n), this.d); }
+    zero(){ return this.n === 0n; }
+    one(){ return this.n === 1n && this.d === 1n; }
+    eq(o){ return this.n === o.n && this.d === o.d; }
+    num(){ return Number(this.n) / Number(this.d); }
+  }
+  const Q0 = new Q(0n), Q1 = new Q(1n);
+  const numQ = s => { const [i, f = ''] = s.split('.'); return new Q(BigInt((i || '0') + f), 10n ** BigInt(f.length)); };
+  class Fallo extends Error {}
+  function leerNum(txt, nombre){
+    let s = txt.trim().replace(/[−–—]/g, '-').replace(',', '.').replace(/\s+/g, '');
+    const neg = s.startsWith('-'); if (neg) s = s.slice(1);
+    let v;
+    if (/^\d+(\.\d+)?$/.test(s)) v = numQ(s);
+    else if (/^\d+\/\d+$/.test(s)){ const [a, b] = s.split('/'); if (/^0+$/.test(b)) throw new Fallo(`En “${nombre}” hay una división entre cero.`); v = new Q(BigInt(a), BigInt(b)); }
+    else throw new Fallo(`Escribe un número en “${nombre}”, por ejemplo 2, −1,5 o 3/4.`);
+    if (Math.abs(v.num()) > 1000) throw new Fallo('Usa números entre −1000 y 1000.');
+    return neg ? v.neg() : v;
+  }
+
+  // ---------- lectura de ecuaciones con x, y: {a, b, k} = a·x + b·y + k ----------
+  const L = (a, b, k) => ({a, b, k});
+  const lAdd = (u, v) => L(u.a.add(v.a), u.b.add(v.b), u.k.add(v.k));
+  const lSub = (u, v) => L(u.a.sub(v.a), u.b.sub(v.b), u.k.sub(v.k));
+  const lEsc = (u, f) => L(u.a.mul(f), u.b.mul(f), u.k.mul(f));
+  const conVar = u => !u.a.zero() || !u.b.zero();
+  function tokens(s){
+    s = s.replace(/[−–—]/g, '-').replace(/[×·]/g, '*').replace(/÷/g, '/').replace(/\s+/g, '');
+    const t = []; let i = 0;
+    while (i < s.length){
+      const c = s[i];
+      if (/[0-9.,]/.test(c)){
+        let j = i; while (j < s.length && /[0-9.,]/.test(s[j])) j++;
+        const raw = s.slice(i, j), v = raw.replace(',', '.');
+        if (/[.,].*[.,]/.test(raw) || v === '.') throw new Fallo(`Revisa el número “${raw}”.`);
+        t.push({t:'num', v:numQ(v)}); i = j; continue;
+      }
+      if (c === 'x' || c === 'X'){ t.push({t:'var', v:'x'}); i++; continue; }
+      if (c === 'y' || c === 'Y'){ t.push({t:'var', v:'y'}); i++; continue; }
+      if (/[a-zA-Z]/.test(c)) throw new Fallo(`Usa solo las letras x y y (encontré “${c}”).`);
+      if ('+-*/()='.includes(c)){ t.push({t:c}); i++; continue; }
+      if ('^²³'.includes(c)) throw new Fallo('En una función lineal las letras no van elevadas a ninguna potencia. Para ecuaciones con x² usa la herramienta de <a href="ecuaciones-segundo-grado.html">segundo grado</a>.');
+      throw new Fallo(`No reconozco el símbolo “${c}”.`);
+    }
+    return t;
+  }
+  function leerLado(t){
+    let p = 0;
+    const ver = () => t[p], tomar = () => t[p++];
+    const mul = (u, v) => { if (conVar(u) && conVar(v)) throw new Fallo('Aparecen letras multiplicadas entre sí (como xy o x·x). Eso ya no es una recta.'); return conVar(u) ? lEsc(u, v.k) : lEsc(v, u.k); };
+    const div = (u, v) => { if (conVar(v)) throw new Fallo('Una letra quedó dividiendo. Eso ya no es una recta.'); if (v.k.zero()) throw new Fallo('Hay una división entre cero.'); return lEsc(u, Q1.div(v.k)); };
+    function expr(){ let v = term(); while (ver() && (ver().t === '+' || ver().t === '-')){ const op = tomar().t, r = term(); v = op === '+' ? lAdd(v, r) : lSub(v, r); } return v; }
+    function term(){ let v = un(); for (;;){ const k = ver(); if (!k) break;
+      if (k.t === '*'){ tomar(); v = mul(v, un()); } else if (k.t === '/'){ tomar(); v = div(v, un()); }
+      else if (k.t === 'num' || k.t === 'var' || k.t === '('){ v = mul(v, un()); } else break; } return v; }
+    function un(){ const k = ver(); if (k && k.t === '-'){ tomar(); return lEsc(un(), Q1.neg()); } if (k && k.t === '+'){ tomar(); return un(); } return prim(); }
+    function prim(){ const k = tomar(); if (!k) throw new Fallo('A la ecuación le falta algo: revisa que no termine en un signo.');
+      if (k.t === 'num') return L(Q0, Q0, k.v);
+      if (k.t === 'var') return k.v === 'x' ? L(Q1, Q0, Q0) : L(Q0, Q1, Q0);
+      if (k.t === '('){ const v = expr(); if (!ver() || ver().t !== ')') throw new Fallo('Falta cerrar un paréntesis.'); tomar(); return v; }
+      throw new Fallo(k.t === ')' ? 'Hay un paréntesis que se cierra sin haberse abierto.' : `Hay un signo “${k.t}” fuera de lugar.`); }
+    if (!t.length) throw new Fallo('Uno de los lados de la ecuación está vacío.');
+    const v = expr();
+    if (p < t.length) throw new Fallo('Revisa cómo está escrita la ecuación.');
+    return v;
+  }
+
+  // ---------- formato ----------
+  const qHTML = v => v.d === 1n ? absB(v.n).toString() : `<span class="frac"><span>${absB(v.n)}</span><span>${v.d}</span></span>`;
+  const qF = v => (v.n < 0n ? '−' : '') + qHTML(v);
+  const qP = v => v.n < 0n ? `(${qF(v)})` : qF(v);
+  const fmt = (v, d = 2) => { const r = Math.round(v * 10**d) / 10**d; return (r || 0).toLocaleString('es-ES', {maximumFractionDigits:d, useGrouping:false}).replace('-', '−'); };
+  const fP = v => v < 0 ? `(${fmt(v)})` : fmt(v);
+  // y = m x + b con números decimales
+  function ecDec(m, b){
+    let s = 'y = ';
+    if (m === 0) return s + fmt(b);
+    s += (m === 1 ? '' : m === -1 ? '−' : fmt(m)) + '<i>x</i>';
+    if (b !== 0) s += ` ${b < 0 ? '−' : '+'} ${fmt(Math.abs(b))}`;
+    return s;
+  }
+  // y = m x + b con fracciones exactas
+  function ecQ(m, b){
+    let s = 'y = ';
+    if (m.zero()) return s + qF(b);
+    s += (m.one() ? '' : m.eq(Q1.neg()) ? '−' : qF(m)) + '<i>x</i>';
+    if (!b.zero()) s += ` ${b.n < 0n ? '−' : '+'} ${qHTML(b.abs())}`;
+    return s;
+  }
+  const paso = (t, c, clase = '') => `<li${clase ? ` class="${clase}"` : ''}><h2>${t}</h2>${c}</li>`;
+
+  // ---------- gráfica (SVG sin librerías) ----------
+  let idGraf = 0;
+  const fmtG = v => { const r = Math.round(v * 1e6) / 1e6; return (Object.is(r, -0) ? 0 : r).toLocaleString('es-ES', {maximumFractionDigits:2, useGrouping:false}).replace('-', '−'); };
+  function paso10(span){
+    const raw = span / 6, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p;
+  }
+  function grafica({xmin, xmax, ymin, ymax, curvas = [], puntos = [], titulo = 'Gráfica'}){
+    const W = 400, H = 300, ml = 40, mr = 12, mt = 12, mb = 28;
+    const sx = x => ml + (x - xmin) / (xmax - xmin) * (W - ml - mr);
+    const sy = y => mt + (ymax - y) / (ymax - ymin) * (H - mt - mb);
+    const id = 'clip' + (++idGraf);
+    let g = '';
+    const dx = paso10(xmax - xmin), dy = paso10(ymax - ymin);
+    for (let x = Math.ceil(xmin / dx) * dx; x <= xmax + 1e-9; x += dx){
+      const X = sx(x).toFixed(1);
+      g += `<line x1="${X}" y1="${mt}" x2="${X}" y2="${H - mb}" class="g-red"/><text x="${X}" y="${H - mb + 16}" text-anchor="middle" class="g-num">${fmtG(x)}</text>`;
+    }
+    for (let y = Math.ceil(ymin / dy) * dy; y <= ymax + 1e-9; y += dy){
+      const Y = sy(y).toFixed(1);
+      g += `<line x1="${ml}" y1="${Y}" x2="${W - mr}" y2="${Y}" class="g-red"/><text x="${ml - 5}" y="${(+Y + 4).toFixed(1)}" text-anchor="end" class="g-num">${fmtG(y)}</text>`;
+    }
+    if (xmin <= 0 && xmax >= 0) g += `<line x1="${sx(0).toFixed(1)}" y1="${mt}" x2="${sx(0).toFixed(1)}" y2="${H - mb}" class="g-eje"/>`;
+    if (ymin <= 0 && ymax >= 0) g += `<line x1="${ml}" y1="${sy(0).toFixed(1)}" x2="${W - mr}" y2="${sy(0).toFixed(1)}" class="g-eje"/>`;
+    let c = '';
+    curvas.forEach(cv => {
+      if (cv.vx !== undefined){ const X = sx(cv.vx).toFixed(1); c += `<line x1="${X}" y1="${mt}" x2="${X}" y2="${H - mb}" class="${cv.clase || 'g-c1'}"/>`; return; }
+      const pts = [];
+      for (let i = 0; i <= 240; i++){
+        const x = xmin + (xmax - xmin) * i / 240, y = cv.f(x);
+        const Y = Math.max(-2000, Math.min(2000, sy(y)));
+        pts.push(`${sx(x).toFixed(1)},${Y.toFixed(1)}`);
+      }
+      c += `<polyline points="${pts.join(' ')}" class="${cv.clase || 'g-c1'}"/>`;
+    });
+    let p = '';
+    puntos.forEach(pt => {
+      const X = sx(pt.x), Y = sy(pt.y);
+      p += `<circle cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" r="6" class="${pt.clase || 'g-pt'}"/>`;
+      if (pt.texto){
+        const izq = pt.izq ?? (X > W * 0.62), abajo = pt.dy ?? (pt.abajo ? 20 : -10);
+        p += `<text x="${(X + (izq ? -9 : 9)).toFixed(1)}" y="${Math.max(mt + 12, Math.min(H - mb - 4, Y + abajo)).toFixed(1)}" text-anchor="${izq ? 'end' : 'start'}" class="${pt.claseTxt || 'g-txt'}">${pt.texto}</text>`;
+      }
+    });
+    return `<div class="grafica"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${titulo}">
+      <defs><clipPath id="${id}"><rect x="${ml}" y="${mt}" width="${W - ml - mr}" height="${H - mt - mb}"/></clipPath></defs>
+      ${g}<g clip-path="url(#${id})">${c}</g>${p}</svg></div>`;
+  }
+  function rangoY(valores, incluirCero){
+    let lo = Math.min(...valores), hi = Math.max(...valores);
+    if (incluirCero){ lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+    if (hi - lo < 1e-9){ lo -= 2; hi += 2; }
+    const pad = (hi - lo) * 0.1;
+    return [lo - pad, hi + pad];
+  }
+
+
+  // ---------- dibujo ----------
+  const W = 400, H = 300, ml = 40, mr = 12, mt = 12, mb = 28;
+  function marco(v, id){
+    const sx = x => ml + (x - v.xmin) / (v.xmax - v.xmin) * (W - ml - mr);
+    const sy = y => mt + (v.ymax - y) / (v.ymax - v.ymin) * (H - mt - mb);
+    let g = '';
+    const dx = paso10(v.xmax - v.xmin), dy = paso10(v.ymax - v.ymin);
+    for (let x = Math.ceil(v.xmin / dx) * dx; x <= v.xmax + 1e-9; x += dx){ const X = sx(x).toFixed(1); g += `<line x1="${X}" y1="${mt}" x2="${X}" y2="${H - mb}" class="g-red"/><text x="${X}" y="${H - mb + 16}" text-anchor="middle" class="g-num">${fmtG(x)}</text>`; }
+    for (let y = Math.ceil(v.ymin / dy) * dy; y <= v.ymax + 1e-9; y += dy){ const Y = sy(y).toFixed(1); g += `<line x1="${ml}" y1="${Y}" x2="${W - mr}" y2="${Y}" class="g-red"/><text x="${ml - 5}" y="${(+Y + 4).toFixed(1)}" text-anchor="end" class="g-num">${fmtG(y)}</text>`; }
+    if (v.xmin <= 0 && v.xmax >= 0) g += `<line x1="${sx(0).toFixed(1)}" y1="${mt}" x2="${sx(0).toFixed(1)}" y2="${H - mb}" class="g-eje"/>`;
+    if (v.ymin <= 0 && v.ymax >= 0) g += `<line x1="${ml}" y1="${sy(0).toFixed(1)}" x2="${W - mr}" y2="${sy(0).toFixed(1)}" class="g-eje"/>`;
+    const clip = `<defs><clipPath id="${id}"><rect x="${ml}" y="${mt}" width="${W - ml - mr}" height="${H - mt - mb}"/></clipPath></defs>`;
+    return {sx, sy, g, clip};
+  }
+  const lim = y => Math.max(-1e5, Math.min(1e5, y));
+  const svg = (inner, etiqueta) => `<div class="grafica"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${etiqueta}">${inner}</svg></div>`;
+  const XS = [-2, -1, 0, 1, 2];
+
+  // ---------- sección 2 y 3 ----------
+  function dibujar(){
+    const m = +$('#m').value, b = +$('#b').value;
+    $('#mv').textContent = fmt(m); $('#bv').textContent = fmt(b);
+    $('#ecuacion').innerHTML = `La ecuación es <strong>${ecDec(m, b)}</strong>`;
+    const v = {xmin:-6, xmax:6, ymin:-10, ymax:10};
+    const {sx, sy, g, clip} = marco(v, 'c1');
+    const f = x => m * x + b;
+    let inner = clip + g + `<g clip-path="url(#c1)">`;
+    inner += `<line x1="${sx(v.xmin).toFixed(1)}" y1="${lim(sy(f(v.xmin))).toFixed(1)}" x2="${sx(v.xmax).toFixed(1)}" y2="${lim(sy(f(v.xmax))).toFixed(1)}" class="g-c1"/>`;
+    if (m !== 0) inner += `<polyline points="${sx(0).toFixed(1)},${sy(b).toFixed(1)} ${sx(1).toFixed(1)},${sy(b).toFixed(1)} ${sx(1).toFixed(1)},${sy(b + m).toFixed(1)}" class="g-tri"/>`;
+    XS.forEach(x => { inner += `<circle cx="${sx(x).toFixed(1)}" cy="${lim(sy(f(x))).toFixed(1)}" r="3.5" class="g-pt2"/>`; });
+    inner += `</g>`;
+    if (m !== 0 && Math.abs(b) <= 10 && Math.abs(b + m) <= 10){
+      inner += `<text x="${sx(0.5).toFixed(1)}" y="${(sy(b) + (m > 0 ? 15 : -7)).toFixed(1)}" text-anchor="middle" class="g-lbl">1</text>`;
+      inner += `<text x="${(sx(1) + 5).toFixed(1)}" y="${((sy(b) + sy(b + m)) / 2 + 4).toFixed(1)}" class="g-lbl">${fmt(m)}</text>`;
+    }
+    if (Math.abs(b) <= 10) inner += `<circle cx="${sx(0).toFixed(1)}" cy="${sy(b).toFixed(1)}" r="6" class="g-pt"/><text x="${(sx(0) - 9).toFixed(1)}" y="${(sy(b) - 9).toFixed(1)}" text-anchor="end" class="g-txt">b</text>`;
+    if (m !== 0){ const x0 = -b / m; if (Math.abs(x0) <= 6) inner += `<circle cx="${sx(x0).toFixed(1)}" cy="${sy(0).toFixed(1)}" r="6" class="g-q"/>`; }
+    $('#g1').innerHTML = svg(inner, `Recta ${ecDec(m, b).replace(/<[^>]+>/g, '')}`);
+
+    $('#lm').textContent = fmt(m);
+    $('#lb').textContent = `(0, ${fmt(b)})`;
+    $('#lx').textContent = m === 0 ? (b === 0 ? 'en todos lados' : 'nunca') : `(${fmt(-b / m)}, 0)`;
+
+    let em;
+    if (m === 0) em = `Con <strong>m = 0</strong> la recta es <span class="plana">horizontal</span>: no sube ni baja, y vale ${fmt(b)} para cualquier <i>x</i>.`;
+    else {
+      const dir = m > 0 ? `<span class="sube">sube</span> de izquierda a derecha` : `<span class="baja">baja</span> de izquierda a derecha`;
+      const fuerza = Math.abs(m) >= 3 ? ' y está muy empinada' : Math.abs(m) <= 0.5 ? ' y está casi plana' : '';
+      em = `Con <strong>m = ${fmt(m)}</strong> la recta ${dir}${fuerza}: por cada paso a la derecha, ${m > 0 ? 'sube' : 'baja'} ${fmt(Math.abs(m))}. Mientras más grande es m (sin importar el signo), más inclinada.`;
+    }
+    $('#explM').innerHTML = em;
+    $('#explB').innerHTML = `Con <strong>b = ${fmt(b)}</strong> la recta cruza el eje vertical en el punto (0, ${fmt(b)}): cuando <i>x</i> vale 0, solo queda y = b. Cambiar b <strong>sube o baja</strong> toda la recta sin cambiar su inclinación.`;
+
+    $('#tabla').innerHTML = XS.map(x => {
+      const cuenta = m === 0 ? fmt(b) : `${fmt(m)} × ${fP(x)}${b === 0 ? '' : ` ${b < 0 ? '−' : '+'} ${fmt(Math.abs(b))}`}`;
+      return `<tr><td>${fmt(x)}</td><td>${cuenta}</td><td><strong>${fmt(f(x))}</strong></td><td>(${fmt(x)}, ${fmt(f(x))})</td></tr>`;
+    }).join('');
+  }
+
+  // ---------- sección 4 ----------
+  function calcular(){
+    const out = $('#salida');
+    let A, B;
+    try {
+      A = [leerNum($('#x1').value, 'x del punto A'), leerNum($('#y1').value, 'y del punto A')];
+      B = [leerNum($('#x2').value, 'x del punto B'), leerNum($('#y2').value, 'y del punto B')];
+      if (A[0].eq(B[0]) && A[1].eq(B[1])) throw new Fallo('Los dos puntos son iguales. Se necesitan dos puntos distintos para trazar una recta.');
+    } catch(e){
+      if (e instanceof Fallo){ out.innerHTML = `<p class="error">${e.message}</p>`; return; }
+      throw e;
+    }
+    const [x1, y1] = A, [x2, y2] = B;
+    const pA = `(${qF(x1)}, ${qF(y1)})`, pB = `(${qF(x2)}, ${qF(y2)})`;
+    const dx = x2.sub(x1), dy = y2.sub(y1);
+    let h = '<ol class="pasos">';
+    if (dx.zero()){
+      h += paso('Calcula la pendiente',
+        `<p>Los dos puntos tienen la misma <i>x</i> (${qF(x1)}), así que de A a B no se avanza nada: avanza = 0. Y no se puede dividir entre 0.</p>
+         <p>Es una <strong>recta vertical</strong>. Su pendiente no existe y no se puede escribir como y = m<i>x</i> + b. Su ecuación es simplemente <strong><i>x</i> = ${qF(x1)}</strong>.</p>
+         <p class="pista">Una recta vertical no es una función: para el mismo <i>x</i> hay muchísimos valores de y.</p>`, 'aviso');
+      h += grafPuntos(A, B, null, x1) + '</ol>';
+      out.innerHTML = h + `<div class="resultado otro"><div class="grande"><i>x</i> = ${qF(x1)}</div><div class="pista">Recta vertical.</div></div>`;
+      return;
+    }
+    const m = dy.div(dx), b = y1.sub(m.mul(x1));
+    h += paso('Calcula la pendiente',
+      `<p>La pendiente es cuánto <strong>sube</strong> entre cuánto <strong>avanza</strong> de un punto al otro:</p>
+       <div class="ec">m = <span class="frac"><span>y₂ − y₁</span><span><i>x</i>₂ − <i>x</i>₁</span></span> = <span class="frac"><span>${qF(y2)} − ${qP(y1)}</span><span>${qF(x2)} − ${qP(x1)}</span></span> = <span class="frac"><span>${qF(dy)}</span><span>${qF(dx)}</span></span> = ${qF(m)}</div>
+       <p>${m.zero() ? 'La pendiente es 0: la recta es horizontal.' : `De A a B se avanza ${qF(dx)} y se ${dy.n < 0n ? 'baja' : 'sube'} ${qHTML(dy.abs())}.`}</p>
+       <p class="pista">Ojo con el orden: si arriba restas la y de B menos la de A, abajo resta la <i>x</i> de B menos la de A. Si inviertes el orden en los dos, el resultado es el mismo.</p>`);
+    h += paso('Calcula b',
+      `<p>Ya sabemos que y = ${m.one() ? '' : m.eq(Q1.neg()) ? '−' : qF(m)}<i>x</i> + b. Para encontrar b usamos el punto A: cambiamos <i>x</i> por ${qF(x1)} y y por ${qF(y1)}.</p>
+       <div class="ec">${qF(y1)} = ${qF(m)} × ${qP(x1)} + b</div>
+       <div class="ec">${qF(y1)} = ${qF(m.mul(x1))} + b</div>
+       <p>Pasamos ${qF(m.mul(x1))} al otro lado restando:</p>
+       <div class="ec">b = ${qF(y1)} − ${qP(m.mul(x1))} = ${qF(b)}</div>`);
+    h += paso('Escribe la ecuación',
+      `<div class="ec">${ecQ(m, b)}</div>
+       <p>Comprobamos con el punto B: ${qF(m)} × ${qP(x2)} + ${qP(b)} = ${qF(m.mul(x2).add(b))}, que es justo la y de B (${qF(y2)}). ✓</p>`);
+    // otras formas
+    const L = lcm(m.d, b.d);
+    // m x − y = −b, multiplicada por L para quitar fracciones; dejamos positivo el número de x
+    let Ax = m.mul(new Q(L)).neg(), By = new Q(L), C = b.mul(new Q(L));
+    if (Ax.n < 0n || (Ax.zero() && By.n < 0n)){ Ax = Ax.neg(); By = By.neg(); C = C.neg(); }
+    const general = (() => {
+      let s = '';
+      if (!Ax.zero()) s += (Ax.one() ? '' : qF(Ax)) + '<i>x</i>';
+      if (!By.zero()) s += (s ? (By.n < 0n ? ' − ' : ' + ') : (By.n < 0n ? '−' : '')) + (By.abs().one() ? '' : qHTML(By.abs())) + 'y';
+      return `${s} = ${qF(C)}`;
+    })();
+    const izqPP = y1.zero() ? 'y' : `y ${y1.n < 0n ? '+' : '−'} ${qHTML(y1.abs())}`;
+    const parPP = x1.zero() ? '<i>x</i>' : `(<i>x</i> ${x1.n < 0n ? '+' : '−'} ${qHTML(x1.abs())})`;
+    const pp = m.zero() ? `${izqPP} = 0` : `${izqPP} = ${m.one() ? '' : m.eq(Q1.neg()) ? '−' : qF(m)}${parPP}`;
+    h += paso('Otras formas de escribir la misma recta',
+      `<p><strong>Forma general</strong> (sin fracciones, con <i>x</i> y y del mismo lado). Es como aparece en los sistemas de ecuaciones:</p><div class="ec">${general}</div>
+       <p><strong>Forma punto-pendiente</strong>, usando el punto A y la pendiente:</p><div class="ec">${pp}</div>
+       <p class="pista">Las tres son la misma recta escrita de distinta manera: si despejas y en cualquiera, llegas a ${ecQ(m, b)}.</p>`);
+    h += grafPuntos(A, B, {m: m.num(), b: b.num()}, null);
+    h += '</ol>';
+    out.innerHTML = h + `<div class="resultado"><div>La ecuación de la recta es</div><div class="grande">${ecQ(m, b)}</div></div>`;
+  }
+  function grafPuntos(A, B, recta, vertical){
+    const xs = [A[0].num(), B[0].num()], ys = [A[1].num(), B[1].num()];
+    let xmin = Math.min(...xs, 0), xmax = Math.max(...xs, 0);
+    const pad = Math.max(2, (xmax - xmin) * 0.3); xmin -= pad; xmax += pad;
+    const vals = [...ys, 0];
+    if (recta) vals.push(recta.m * xmin + recta.b, recta.m * xmax + recta.b);
+    const [ymin, ymax] = rangoY(vals, true);
+    const curvas = recta ? [{f: x => recta.m * x + recta.b}] : [{vx: vertical.num()}];
+    const pts = [{x:xs[0], y:ys[0], texto:'A'}, {x:xs[1], y:ys[1], texto:'B'}];
+    return paso('Mírala en la gráfica', `<p>La recta pasa por los dos puntos:</p>${grafica({xmin, xmax, ymin, ymax, curvas, puntos:pts, titulo:'Recta que pasa por A y B'})}`);
+  }
+
+  // ---------- resolver la ecuación escrita ----------
+  const xi = '<i>x</i>';
+  function terminos(lista){
+    const it = lista.filter(t => !t.q.zero());
+    if (!it.length) return '0';
+    return it.map((t, i) => {
+      const neg = t.q.n < 0n, ab = t.q.abs();
+      const cuerpo = t.v ? (ab.one() ? '' : qHTML(ab)) + t.v : qHTML(ab);
+      return (i === 0 ? (neg ? '−' : '') : (neg ? ' − ' : ' + ')) + cuerpo;
+    }).join('');
+  }
+  const ecH = (i, d) => `<div class="ec">${i}<span class="igual">=</span>${d}</div>`;
+  const bonito = s => s.replace(/\*/g, ' × ').replace(/-/g, ' − ').replace(/\+/g, ' + ').replace(/=/g, ' = ').replace(/\s+/g, ' ').replace(/\( /g, '(').replace(/^ − /, '−').replace(/= − /, '= −').replace(/\(\s*−\s*/g, '(−').trim();
+  let actual = null;   // {m, b} de la última ecuación resuelta
+
+  function resolverEc(){
+    const out = $('#resultado');
+    actual = null;
+    try {
+      const txt = $('#ec').value.trim();
+      const t = tokens(txt);
+      const ig = t.filter(k => k.t === '=').length;
+      if (ig !== 1) throw new Fallo(ig === 0 ? 'Falta el signo = que separa los dos lados de la ecuación.' : 'La ecuación debe tener un solo signo =.');
+      const pos = t.findIndex(k => k.t === '=');
+      const I = leerLado(t.slice(0, pos)), D = leerLado(t.slice(pos + 1));
+      const P = lSub(I, D);                      // a·x + b·y + k = 0
+      if (!conVar(P)) throw new Fallo('Al acomodar la ecuación las letras se cancelan. Revisa que esté bien escrita.');
+      out.innerHTML = pasosEc(txt, I, D, P);
+    } catch(e){
+      if (e instanceof Fallo){ out.innerHTML = `<p class="error">${e.message}</p>`; return; }
+      throw e;
+    }
+  }
+
+  function pasosEc(txt, I, D, P){
+    const [izqT, derT] = txt.split('=');
+    let h = '<ol class="pasos">';
+    const a = P.a, bb = P.b, c = P.k.neg();       // a·x + b·y = c
+    h += paso('Lee la ecuación',
+      `${ecH(bonito(izqT), bonito(derT))}
+       <p>Tiene ${bb.zero() ? `solo ${xi}` : a.zero() ? 'solo y' : `${xi} y y`}. Las soluciones no son un solo número sino <strong>muchas parejas (${xi}, y)</strong>, y todas juntas forman una recta. “Resolverla” significa escribirla como <strong>y = m${xi} + b</strong>, para saber su inclinación, dónde cruza los ejes y cómo dibujarla.</p>`);
+
+    // recta vertical: no tiene y
+    if (bb.zero()){
+      const x0 = c.div(a);
+      h += paso('Despeja la x',
+        `<p>Acomodamos: ${ecH(terminos([{q:a, v:xi}]), qF(c))}${a.one() ? '' : `<p>Dividimos entre ${qF(a)}:</p>${ecH(xi, qF(x0))}`}`);
+      h += paso('Es una recta vertical',
+        `<p>La ecuación dice que ${xi} vale ${qF(x0)} <strong>siempre</strong>, sin importar y. Todos los puntos (${qF(x0)}, y) la cumplen, así que forman una <strong>recta vertical</strong>.</p>
+         <p>No se puede escribir como y = m${xi} + b: su pendiente no existe (no avanza nada hacia la derecha), y no es una función.</p>
+         <p class="pista">Si lo que buscabas era resolver una ecuación con una sola incógnita, usa la herramienta de <a href="ecuaciones-primer-grado.html">ecuaciones de primer grado</a>.</p>`, 'aviso');
+      h += paso('Mírala en una gráfica', grafica({xmin: Math.min(-5, x0.num() - 3), xmax: Math.max(5, x0.num() + 3), ymin: -6, ymax: 6, curvas: [{vx: x0.num()}], titulo: `Recta vertical x = ${fmt(x0.num())}`}));
+      return h + '</ol>' + `<div class="resultado otro"><div class="grande">${xi} = ${qF(x0)}</div><div class="pista">Recta vertical.</div></div>`;
+    }
+
+    // despejar y
+    const m = a.neg().div(bb), b = c.div(bb);
+    const yaDespejada = I.b.one() && I.a.zero() && I.k.zero() && D.b.zero();
+    if (yaDespejada){
+      h += paso('Ya está despejada', `<p>La y ya está sola de un lado. Solo ordenamos el otro lado: primero el término con ${xi} y después el número.</p>${ecH('y', terminos([{q:m, v:xi}, {q:b}]))}`);
+    } else {
+      let d = `<p>Acomodamos la ecuación con las letras a la izquierda y el número a la derecha:</p>${ecH(terminos([{q:a, v:xi}, {q:bb, v:'y'}]), qF(c))}`;
+      if (!a.zero()) d += `<p>Dejamos sola la y: pasamos ${terminos([{q:a, v:xi}])} al otro lado (cambia de signo):</p>${ecH(terminos([{q:bb, v:'y'}]), terminos([{q:a.neg(), v:xi}, {q:c}]))}`;
+      if (!bb.one()){
+        const arriba = terminos([{q:a.neg(), v:xi}, {q:c}]);
+        d += `<p>La y está multiplicada por ${qF(bb)}, así que dividimos <strong>todo</strong> entre ${qF(bb)}:</p>${ecH('y', a.zero() ? `${qF(c)} ÷ ${qP(bb)}` : `<span class="frac"><span>${arriba}</span><span>${qF(bb)}</span></span>`)}`;
+        d += `<p>Repartimos la división a cada término:</p>`;
+      }
+      d += ecH('y', terminos([{q:m, v:xi}, {q:b}]));
+      h += paso('Despeja la y', d);
+    }
+    h += paso('Identifica la pendiente y la ordenada',
+      `<p>Comparamos con y = m${xi} + b:</p>
+       <div class="abc"><span>m = ${qF(m)}</span><span>b = ${qF(b)}</span></div>
+       <p><strong>m = ${qF(m)}</strong>: ${m.zero() ? 'la recta es horizontal, no sube ni baja.' : `por cada paso a la derecha, la recta ${m.n > 0n ? '<span class="sube">sube</span>' : '<span class="baja">baja</span>'} ${qHTML(m.abs())}.`}</p>
+       <p><strong>b = ${qF(b)}</strong>: la recta cruza el eje vertical en (0, ${qF(b)}).</p>
+       ${b.zero() ? '<p class="pista">Como b = 0, la recta pasa por el origen (0, 0).</p>' : ''}`);
+    let cortes = `<p><strong>Con el eje vertical</strong> (donde ${xi} = 0): y = ${qF(m)} × 0 ${b.n < 0n ? '−' : '+'} ${qHTML(b.abs())} = ${qF(b)}. El punto es <strong>(0, ${qF(b)})</strong>.</p>`;
+    let x0 = null;
+    if (m.zero()) cortes += `<p><strong>Con el eje horizontal</strong>: ${b.zero() ? 'la recta es el mismo eje horizontal.' : `nunca lo cruza, porque es horizontal y siempre vale ${qF(b)}.`}</p>`;
+    else {
+      x0 = b.neg().div(m);
+      cortes += `<p><strong>Con el eje horizontal</strong> (donde y = 0):</p>${ecH('0', terminos([{q:m, v:xi}, {q:b}]))}${b.zero() ? '' : ecH(terminos([{q:m, v:xi}]), qF(b.neg()))}${m.one() ? '' : ecH(xi, `${qF(b.neg())} ÷ ${qP(m)} = ${qF(x0)}`)}<p>El punto es <strong>(${qF(x0)}, 0)</strong>.</p>`;
+    }
+    h += paso('Encuentra dónde cruza los ejes', cortes + '<p class="pista">Con estos dos puntos ya se puede dibujar la recta.</p>');
+    const XS = [-2, -1, 0, 1, 2].map(n => new Q(BigInt(n)));
+    h += paso('Haz una tabla de valores',
+      `<div class="tabla"><table><thead><tr><th>${xi}</th><th>Cuenta</th><th>y</th></tr></thead><tbody>${XS.map(x => `<tr><td>${qF(x)}</td><td>${m.zero() ? qF(b) : `${qF(m)} × ${qP(x)}${b.zero() ? '' : ` ${b.n < 0n ? '−' : '+'} ${qHTML(b.abs())}`}`}</td><td><strong>${qF(m.mul(x).add(b))}</strong></td></tr>`).join('')}</tbody></table></div>`);
+    const mn = m.num(), bn = b.num();
+    const xs = [0, ...(x0 ? [x0.num()] : [])];
+    const xmin = Math.min(-4, ...xs.map(v => v - 2)), xmax = Math.max(4, ...xs.map(v => v + 2));
+    const [ymin, ymax] = rangoY([mn * xmin + bn, mn * xmax + bn, 0, bn], true);
+    const pts = [{x:0, y:bn, texto:`(0, ${fmtG(bn)})`}];
+    if (x0 && Math.abs(x0.num()) > 1e-9) pts.push({x:x0.num(), y:0, texto:`(${fmtG(x0.num())}, 0)`, clase:'g-q', abajo:true});
+    h += paso('Mírala en una gráfica', `<p>Marcamos los cortes con los ejes y trazamos la recta que pasa por ellos:</p>${grafica({xmin, xmax, ymin, ymax, curvas:[{f: x => mn * x + bn}], puntos:pts, titulo:'Gráfica de la recta'})}`);
+    h += '</ol>';
+    actual = {m, b};
+    const enRango = Math.abs(mn) <= 5 && Math.abs(bn) <= 8 && Number.isInteger(mn * 4) && Number.isInteger(bn * 2);
+    return h + `<div class="resultado"><div>En forma pendiente-ordenada</div><div class="grande">y = ${terminos([{q:m, v:xi}, {q:b}])}</div><div class="pista">Pendiente m = ${qF(m)} · ordenada al origen b = ${qF(b)}</div></div>
+      <div class="seccion calcula">
+        <h2>Calcula un valor</h2>
+        <p>Con la ecuación puedes saber cuánto vale una letra si conoces la otra.</p>
+        <div class="calc-fila"><label for="cx">Si ${xi} =</label><input id="cx" value="3" inputmode="decimal"><span>¿cuánto vale y?</span><button id="bx">Calcular</button></div>
+        <div id="rx"></div>
+        <div class="calc-fila"><label for="cy">Si y =</label><input id="cy" value="0" inputmode="decimal"><span>¿cuánto vale ${xi}?</span><button id="by">Calcular</button></div>
+        <div id="ry"></div>
+        ${enRango ? '<div class="botones"><button id="aControles">Verla en los controles de la sección 2</button></div>' : ''}
+      </div>`;
+  }
+
+  function valorY(){
+    const el = $('#rx'); if (!actual) return;
+    try {
+      const x = leerNum($('#cx').value, 'x'), {m, b} = actual, y = m.mul(x).add(b);
+      el.innerHTML = `<p>Sustituimos ${xi} = ${qF(x)}:</p>${ecH('y', `${m.zero() ? '' : `${qF(m)} × ${qP(x)}`}${b.zero() ? '' : `${m.zero() ? '' : ` ${b.n < 0n ? '−' : '+'} `}${m.zero() ? qF(b) : qHTML(b.abs())}`} = ${qF(y)}`)}<p>El punto (${qF(x)}, ${qF(y)}) está en la recta.</p>`;
+    } catch(e){ if (e instanceof Fallo) el.innerHTML = `<p class="error">${e.message}</p>`; else throw e; }
+  }
+  function valorX(){
+    const el = $('#ry'); if (!actual) return;
+    try {
+      const y = leerNum($('#cy').value, 'y'), {m, b} = actual;
+      if (m.zero()){ el.innerHTML = `<p class="error">La recta es horizontal: y siempre vale ${qF(b)}. ${y.eq(b) ? `Cualquier ${xi} funciona.` : `Nunca vale ${qF(y)}.`}</p>`; return; }
+      const r = y.sub(b), x = r.div(m);
+      el.innerHTML = `<p>Sustituimos y = ${qF(y)} y despejamos ${xi}:</p>${ecH(qF(y), terminos([{q:m, v:xi}, {q:b}]))}${b.zero() ? '' : ecH(terminos([{q:m, v:xi}]), `${qF(y)} − ${qP(b)} = ${qF(r)}`)}${m.one() ? '' : ecH(xi, `${qF(r)} ÷ ${qP(m)} = ${qF(x)}`)}<p>El punto (${qF(x)}, ${qF(y)}) está en la recta.</p>`;
+    } catch(e){ if (e instanceof Fallo) el.innerHTML = `<p class="error">${e.message}</p>`; else throw e; }
+  }
+
+  $('#resolver').addEventListener('click', resolverEc);
+  $('#ec').addEventListener('keydown', e => { if (e.key === 'Enter') resolverEc(); });
+  document.querySelectorAll('#ejemplos-ec button').forEach(btn => btn.addEventListener('click', () => { $('#ec').value = btn.textContent; resolverEc(); }));
+  $('#resultado').addEventListener('click', e => {
+    if (e.target.id === 'bx') valorY();
+    if (e.target.id === 'by') valorX();
+    if (e.target.id === 'aControles' && actual){
+      $('#m').value = actual.m.num(); $('#b').value = actual.b.num(); dibujar();
+      $('#m').closest('.seccion').scrollIntoView({behavior: 'smooth', block: 'start'});
+    }
+  });
+  $('#resultado').addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    if (e.target.id === 'cx') valorY();
+    if (e.target.id === 'cy') valorX();
+  });
+
+  $('#m').addEventListener('input', dibujar);
+  $('#b').addEventListener('input', dibujar);
+  document.querySelectorAll('#presets button').forEach(btn => btn.addEventListener('click', () => { $('#m').value = btn.dataset.m; $('#b').value = btn.dataset.b; dibujar(); }));
+  $('#calcular').addEventListener('click', calcular);
+  ['#x1', '#y1', '#x2', '#y2'].forEach(s => $(s).addEventListener('keydown', e => { if (e.key === 'Enter') calcular(); }));
+  dibujar(); calcular(); resolverEc(); valorY(); valorX();
+})();
+</script>
+</body>
+</html>

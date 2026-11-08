@@ -209,6 +209,44 @@ table.matriz tr.cambio td{color:var(--pen); font-weight:700}
 .op{margin:10px 0 14px}
 .op-et{display:inline-block; font-family:var(--fuente-titulos); font-weight:700; color:var(--pen); background:var(--paper); border:1.5px solid var(--pen); border-radius:6px; padding:0 8px; margin-right:6px}
 
+/* Funciones lineales: captura de dos puntos */
+.puntos{display:grid; grid-template-columns:auto 1fr; gap:8px 12px; align-items:center; margin:10px 0}
+.pt-et{font-weight:600}
+.par{font-family:var(--fuente-titulos); font-size:1.4rem; white-space:nowrap}
+.par input{width:4.5ch; font-family:var(--fuente-titulos); font-size:1.2rem; color:var(--ink); background:var(--paper); border:2px solid var(--ink); border-radius:var(--radio-chico); padding:2px 6px; text-align:center}
+.par input:focus-visible{outline:3px solid var(--pen); outline-offset:2px}
+
+/* Funciones lineales: resolver y calcular valores */
+.titulo-aprende{font-family:var(--fuente-titulos); font-size:1.6rem; margin:40px 0 0; padding-top:20px; border-top:1px dashed var(--line)}
+.calcula{margin-top:16px}
+.calc-fila{display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; margin:12px 0 4px}
+.calc-fila label{font-family:var(--fuente-titulos); font-size:1.2rem}
+.calc-fila input{width:5ch; font-family:var(--fuente-titulos); font-size:1.2rem; color:var(--ink); background:var(--paper); border:2px solid var(--ink); border-radius:var(--radio-chico); padding:2px 6px; text-align:center}
+.calc-fila input:focus-visible{outline:3px solid var(--pen); outline-offset:2px}
+.calc-fila button{background:transparent; color:var(--ink); padding:4px 12px}
+
+/* Ecuaciones de la recta: definición, formulario y datos */
+.definicion{background:var(--card); border:1.5px dashed var(--line); border-radius:var(--radio); padding:12px 16px; margin-bottom:18px}
+.definicion p{margin:0 0 10px}
+.formas{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:8px}
+.formas div{background:var(--paper); border:1px solid var(--line); border-radius:var(--radio-chico); padding:6px 10px}
+.formas small{display:block; color:var(--soft); font-size:.85rem}
+.formas span{font-family:var(--fuente-titulos); font-size:1.1rem}
+.formas .frac span{font-size:1em}
+.datos{display:grid; grid-template-columns:auto 1fr; gap:8px 12px; align-items:center; margin:12px 0 4px}
+.datos[hidden]{display:none}
+.nowrap{white-space:nowrap}
+.datos .par input{width:5.5ch}
+.datos .par input#pm{width:7ch}
+
+/* Gráfica estilo cuaderno (ecuaciones de la recta) */
+.cuaderno svg{max-width:520px}
+.g-flecha{fill:var(--ink)}
+.g-eje-txt{fill:var(--ink); font-family:var(--fuente-titulos); font-style:italic; font-size:14px}
+.g-recta{stroke:var(--ink); stroke-width:2.6}
+.g-tri-m{stroke:var(--pen); stroke-dasharray:none; stroke-width:2}
+.g-lbl-m{fill:var(--pen); font-weight:700}
+
 /* Símbolo de integral con sus límites */
 .integral{display:inline-flex; align-items:center; vertical-align:middle; margin-right:.1em}
 .int-s{font-family:var(--fuente-titulos); font-size:1.7em; line-height:1}
